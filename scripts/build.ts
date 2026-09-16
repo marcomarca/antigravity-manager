@@ -62,6 +62,14 @@ async function build(): Promise<void> {
     path.join(stylesDist, "app.css")
   );
 
+  // Copy renderer assets
+  const assetsSrc = path.join(__dirname, "..", "src", "renderer", "assets");
+  const assetsDist = path.join(rendererDist, "assets");
+  if (fs.existsSync(assetsSrc)) {
+    fs.mkdirSync(assetsDist, { recursive: true });
+    fs.cpSync(assetsSrc, assetsDist, { recursive: true });
+  }
+
   // Copy resources
   const resourcesSrc = path.join(__dirname, "..", "resources");
   const resourcesDist = path.join(distDir, "resources");

@@ -66,8 +66,14 @@ El instalador NSIS se generará en la carpeta `release/`.
 
 ```text
 antigravity-manager/
-├── resources/              # Iconos (.ico, .png) y plantillas de prompt
-├── scripts/                # Scripts de build y generación de assets
+├── resources/              # Iconos (.ico, .png, tray), icon-pack multi-plataforma y plantillas
+│   ├── icon.ico
+│   ├── icon.png
+│   ├── tray-icon.ico
+│   ├── tray-icon.png
+│   ├── icon-pack/          # Icon pack completo (Windows, macOS, iOS, Android, Web, Master)
+│   └── planning-prompt.md
+├── scripts/                # Scripts de build y automatización de assets
 ├── src/
 │   ├── adapters/           # Acceso a SQLite, ejecutables de Antigravity y SO
 │   ├── domain/             # Lógica de validación, rutas canónicas y búsqueda

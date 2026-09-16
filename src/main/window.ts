@@ -1,14 +1,30 @@
 import { BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "node:path";
+import * as fs from "node:fs";
 import { logger } from "../adapters/logger";
 
 export class WindowManager {
   private window: BrowserWindow | null = null;
   private isModalOpen = false;
 
+  private resolveIcon(): string | undefined {
+    const candidatePaths = [
+      path.join(process.cwd(), "resources", "icon.ico"),
+      path.join(process.cwd(), "resources", "icon.png"),
+      path.join(__dirname, "..", "..", "resources", "icon.ico"),
+      path.join(__dirname, "..", "..", "resources", "icon.png"),
+      path.join(__dirname, "..", "resources", "icon.ico"),
+      path.join(__dirname, "..", "resources", "icon.png"),
+      path.join(process.resourcesPath, "resources", "icon.ico"),
+      path.join(process.resourcesPath, "resources", "icon.png")
+    ];
+    return candidatePaths.find((p) => fs.existsSync(p));
+  }
+
   public create(): BrowserWindow {
     const preloadPath = path.join(__dirname, "..", "preload", "preload.js");
     const htmlPath = path.join(__dirname, "..", "renderer", "index.html");
+    const iconPath = this.resolveIcon();
 
     this.window = new BrowserWindow({
       width: 680,
@@ -19,6 +35,7 @@ export class WindowManager {
       alwaysOnTop: true,
       skipTaskbar: false,
       backgroundColor: "#111216",
+      icon: iconPath,
       webPreferences: {
         preload: preloadPath,
         contextIsolation: true,

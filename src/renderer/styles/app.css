@@ -91,6 +91,21 @@ body.app-body {
   box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
+.brand-header-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4));
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.search-box:focus-within .brand-header-icon {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.7));
+}
+
 .search-icon {
   color: var(--text-muted);
   flex-shrink: 0;
@@ -269,6 +284,28 @@ body.app-body {
   justify-content: center;
   padding: 40px 20px;
   text-align: center;
+}
+
+.empty-brand-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 20px rgba(99, 102, 241, 0.35));
+  opacity: 0.9;
+  animation: pulse-logo 4s ease-in-out infinite;
+}
+
+@keyframes pulse-logo {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 20px rgba(99, 102, 241, 0.3));
+  }
+  50% {
+    transform: scale(1.04);
+    filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 28px rgba(99, 102, 241, 0.55));
+  }
 }
 
 .empty-icon {
@@ -518,6 +555,20 @@ kbd {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-subtle);
   background-color: var(--bg-surface);
+}
+
+.modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-title-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.35));
 }
 
 .modal-title {

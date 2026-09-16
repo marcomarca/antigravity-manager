@@ -8,12 +8,24 @@ export class TrayManager {
 
   public init(onNewProject?: () => void, onSettings?: () => void): Tray {
     const candidatePaths = [
+      path.join(process.cwd(), "resources", "tray-icon.ico"),
+      path.join(process.cwd(), "resources", "tray-icon.png"),
+      path.join(process.cwd(), "resources", "icon.ico"),
+      path.join(process.cwd(), "resources", "icon.png"),
+      path.join(app.getAppPath(), "resources", "tray-icon.ico"),
+      path.join(app.getAppPath(), "resources", "tray-icon.png"),
       path.join(app.getAppPath(), "resources", "icon.ico"),
       path.join(app.getAppPath(), "resources", "icon.png"),
+      path.join(__dirname, "..", "..", "resources", "tray-icon.ico"),
+      path.join(__dirname, "..", "..", "resources", "tray-icon.png"),
       path.join(__dirname, "..", "..", "resources", "icon.ico"),
       path.join(__dirname, "..", "..", "resources", "icon.png"),
+      path.join(__dirname, "..", "resources", "tray-icon.ico"),
+      path.join(__dirname, "..", "resources", "tray-icon.png"),
       path.join(__dirname, "..", "resources", "icon.ico"),
       path.join(__dirname, "..", "resources", "icon.png"),
+      path.join(process.resourcesPath, "resources", "tray-icon.ico"),
+      path.join(process.resourcesPath, "resources", "tray-icon.png"),
       path.join(process.resourcesPath, "resources", "icon.ico"),
       path.join(process.resourcesPath, "resources", "icon.png")
     ];
