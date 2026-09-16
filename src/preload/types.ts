@@ -10,6 +10,7 @@ export interface IAppApi {
   };
   planning: {
     start: () => Promise<{ pasted: boolean; promptCopied: boolean }>;
+    getDefaultPrompt: () => Promise<string>;
   };
   settings: {
     get: () => Promise<Config>;

@@ -6,6 +6,8 @@ export function setupSettingsModal(
   projectsRootInput: HTMLInputElement,
   hotkeyInput: HTMLInputElement,
   chatgptModeSelect: HTMLSelectElement,
+  customPromptTextarea: HTMLTextAreaElement,
+  resetPromptBtn: HTMLButtonElement,
   antigravityExeInput: HTMLInputElement,
   startupCheckbox: HTMLInputElement,
   saveBtn: HTMLButtonElement,
@@ -21,6 +23,7 @@ export function setupSettingsModal(
         projectsRootInput.value = config.projectsRoot || "";
         hotkeyInput.value = config.hotkey || "Ctrl+Alt+Space";
         chatgptModeSelect.value = config.chatgptMode || "auto";
+        customPromptTextarea.value = config.customPlanningPrompt || "";
         antigravityExeInput.value = config.antigravityExecutable || "";
         startupCheckbox.checked = config.launchAtStartup !== false;
       }
@@ -36,15 +39,28 @@ export function setupSettingsModal(
   closeBtn.addEventListener("click", closeModal);
   cancelBtn.addEventListener("click", closeModal);
 
+  resetPromptBtn.addEventListener("click", async () => {
+    try {
+      const defaultPrompt = await window.app.planning.getDefaultPrompt();
+      customPromptTextarea.value = defaultPrompt;
+      showToast("Default planning prompt loaded.");
+    } catch {
+      showToast("Could not load default prompt template.");
+    }
+  });
+
   saveBtn.addEventListener("click", async () => {
     try {
       saveBtn.disabled = true;
       saveBtn.textContent = "Saving...";
 
+      const promptVal = customPromptTextarea.value.trim();
+
       const updated = await window.app.settings.update({
         projectsRoot: projectsRootInput.value.trim(),
         hotkey: hotkeyInput.value.trim() || "Ctrl+Alt+Space",
         chatgptMode: chatgptModeSelect.value as ChatGPTMode,
+        customPlanningPrompt: promptVal.length > 0 ? promptVal : undefined,
         antigravityExecutable: antigravityExeInput.value.trim() || null,
         launchAtStartup: startupCheckbox.checked
       });

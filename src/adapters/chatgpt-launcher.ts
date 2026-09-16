@@ -1,15 +1,27 @@
 import { exec } from "node:child_process";
-import { clipboard } from "electron";
 import type { ChatGPTMode } from "../domain/types";
 import { logger } from "./logger";
 import { windowsAutomation } from "./windows-automation";
+
+function getClipboard(): { writeText: (text: string) => void } | null {
+  try {
+    // @ts-ignore
+    const electron = require("electron");
+    return electron?.clipboard || null;
+  } catch {
+    return null;
+  }
+}
 
 export class ChatGPTLauncher {
   public async launch(promptText: string, mode: ChatGPTMode = "auto"): Promise<{ pasted: boolean }> {
     // 1. Copy prompt to clipboard
     try {
-      clipboard.writeText(promptText);
-      logger.info("Planning prompt written to clipboard.");
+      const cb = getClipboard();
+      if (cb) {
+        cb.writeText(promptText);
+        logger.info("Planning prompt written to clipboard.");
+      }
     } catch (err) {
       logger.warn("Could not copy prompt via Electron clipboard", err);
     }

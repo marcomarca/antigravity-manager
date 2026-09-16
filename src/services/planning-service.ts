@@ -8,31 +8,35 @@ import { AppError } from "../domain/errors";
 export class PlanningService {
   constructor(private configService: ConfigService) {}
 
-  public async start(): Promise<{ pasted: boolean; promptCopied: boolean }> {
-    const config = this.configService.get();
-
-    // Look for planning-prompt.md in resources or source tree
+  public async getDefaultPrompt(): Promise<string> {
     const possiblePaths = [
       path.join(__dirname, "..", "..", "resources", "planning-prompt.md"),
       path.join(__dirname, "..", "resources", "planning-prompt.md"),
       path.join(process.cwd(), "resources", "planning-prompt.md")
     ];
 
-    let promptContent = "";
     for (const p of possiblePaths) {
       if (fs.existsSync(p)) {
         try {
-          promptContent = await fs.promises.readFile(p, "utf8");
-          break;
-        } catch {
-          // Ignore
-        }
+          return await fs.promises.readFile(p, "utf8");
+        } catch {}
       }
     }
 
-    if (!promptContent) {
-      promptContent = "You are an expert software architect. Help me turn my project idea into an actionable, structured technical specification in Markdown.";
+    return "You are an expert software architect. Help me turn my project idea into an actionable, structured technical specification in Markdown.";
+  }
+
+  public async getActivePrompt(): Promise<string> {
+    const config = this.configService.get();
+    if (config.customPlanningPrompt && config.customPlanningPrompt.trim().length > 0) {
+      return config.customPlanningPrompt.trim();
     }
+    return this.getDefaultPrompt();
+  }
+
+  public async start(): Promise<{ pasted: boolean; promptCopied: boolean }> {
+    const config = this.configService.get();
+    const promptContent = await this.getActivePrompt();
 
     try {
       logger.info(`Starting ChatGPT planning flow (mode: ${config.chatgptMode})...`);

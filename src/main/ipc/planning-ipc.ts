@@ -12,4 +12,13 @@ export function registerPlanningIpc(planningService: PlanningService): void {
       throw AppError.from(err).toPayload();
     }
   });
+
+  ipcMain.handle("planning:getDefaultPrompt", async () => {
+    try {
+      return await planningService.getDefaultPrompt();
+    } catch (err) {
+      logger.error("IPC Error in planning:getDefaultPrompt", err);
+      throw AppError.from(err).toPayload();
+    }
+  });
 }

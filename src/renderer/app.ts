@@ -58,6 +58,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const settingsProjectsRoot = document.getElementById("settings-projects-root") as HTMLInputElement;
   const settingsHotkey = document.getElementById("settings-hotkey") as HTMLInputElement;
   const settingsChatgptMode = document.getElementById("settings-chatgpt-mode") as HTMLSelectElement;
+  const settingsCustomPrompt = document.getElementById("settings-custom-prompt") as HTMLTextAreaElement;
+  const btnResetPrompt = document.getElementById("btn-reset-prompt") as HTMLButtonElement;
   const settingsAntigravityExe = document.getElementById("settings-antigravity-exe") as HTMLInputElement;
   const settingsStartup = document.getElementById("settings-startup") as HTMLInputElement;
   const btnSaveSettings = document.getElementById("btn-save-settings") as HTMLButtonElement;
@@ -83,6 +85,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     settingsProjectsRoot,
     settingsHotkey,
     settingsChatgptMode,
+    settingsCustomPrompt,
+    btnResetPrompt,
     settingsAntigravityExe,
     settingsStartup,
     btnSaveSettings,

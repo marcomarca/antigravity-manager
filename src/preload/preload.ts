@@ -11,7 +11,8 @@ const api: IAppApi = {
     setNote: (path: string, note: string): Promise<void> => ipcRenderer.invoke("projects:setNote", path, note)
   },
   planning: {
-    start: (): Promise<{ pasted: boolean; promptCopied: boolean }> => ipcRenderer.invoke("planning:start")
+    start: (): Promise<{ pasted: boolean; promptCopied: boolean }> => ipcRenderer.invoke("planning:start"),
+    getDefaultPrompt: (): Promise<string> => ipcRenderer.invoke("planning:getDefaultPrompt")
   },
   settings: {
     get: (): Promise<Config> => ipcRenderer.invoke("settings:get"),

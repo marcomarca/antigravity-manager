@@ -33,6 +33,7 @@ export interface Config {
   launchAtStartup: boolean;
   antigravityExecutable: string | null;
   chatgptMode: ChatGPTMode;
+  customPlanningPrompt?: string;
 }
 
 export type AppErrorCode =
