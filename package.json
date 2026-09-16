@@ -1,0 +1,26 @@
+{
+  "name": "antigravity-project-launcher",
+  "version": "1.0.0",
+  "description": "Fast Windows launcher for Antigravity IDE projects with Markdown import and notes",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "dev": "bun run build && electron .",
+    "build": "bun run scripts/build.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "package": "bun run build && electron-builder --win",
+    "check": "bun run typecheck && bun test"
+  },
+  "dependencies": {
+    "@types/sql.js": "^1.4.11",
+    "sql.js": "^1.14.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "@types/node": "^22.13.9",
+    "electron": "^34.2.0",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.3"
+  }
+}

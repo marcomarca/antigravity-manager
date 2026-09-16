@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Antigravity Project Launcher</title>
+  <link rel="stylesheet" href="styles/app.css" />
+</head>
+<body class="app-body">
+  <div class="launcher-container" id="launcher-app">
+    <!-- Header / Search Bar -->
+    <header class="launcher-header" data-drag-region>
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="text"
+          id="search-input"
+          class="search-input"
+          placeholder="Search projects, paths, or notes..."
+          autocomplete="off"
+          spellcheck="false"
+          autofocus
+        />
+        <button id="btn-clear-search" class="btn-clear hidden" title="Clear Search">✕</button>
+      </div>
+    </header>
+
+    <!-- Main Content Area: Split List & Note Preview -->
+    <main class="launcher-content">
+      <div class="projects-column">
+        <div id="projects-list" class="projects-list" role="listbox">
+          <!-- Dynamically populated project rows -->
+        </div>
+        <div id="empty-state" class="empty-state hidden">
+          <div class="empty-icon">📁</div>
+          <p class="empty-title">No projects found</p>
+          <p class="empty-desc">Press <kbd>Ctrl+N</kbd> or drag a Markdown file to create one</p>
+        </div>
+      </div>
+
+      <!-- Quick Note Sidebar -->
+      <aside class="note-sidebar" id="note-sidebar">
+        <div class="note-sidebar-header">
+          <span class="note-title">Project Note</span>
+          <span id="note-save-indicator" class="note-saved-badge hidden">Saved</span>
+        </div>
+        <textarea
+          id="project-note-input"
+          class="note-textarea"
+          placeholder="Add project notes, tasks, or reminders..."
+          spellcheck="false"
+        ></textarea>
+      </aside>
+    </main>
+
+    <!-- Global Drop Overlay for Markdown Drag & Drop -->
+    <div id="global-dropzone" class="global-dropzone hidden">
+      <div class="dropzone-box">
+        <svg class="dropzone-icon" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="12" y1="18" x2="12" y2="12"></line>
+          <line x1="9" y1="15" x2="12" y2="12"></line>
+          <line x1="15" y1="15" x2="12" y2="12"></line>
+        </svg>
+        <p class="dropzone-text">Drop Markdown to Materialize Project</p>
+        <p class="dropzone-sub"><code>filename.md</code> → <code>Projects\filename\filename.md</code></p>
+      </div>
+    </div>
+
+    <!-- Footer Action Bar -->
+    <footer class="launcher-footer">
+      <div class="footer-left">
+        <button id="btn-new-project" class="btn-footer primary">
+          <span class="btn-icon">+</span> New Project <kbd>Ctrl+N</kbd>
+        </button>
+        <button id="btn-plan-chatgpt" class="btn-footer">
+          <span class="btn-icon">⚡</span> Plan with ChatGPT
+        </button>
+      </div>
+      <div class="footer-right">
+        <button id="btn-open-settings" class="btn-footer-icon" title="Settings (Ctrl+,)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+        <span class="key-hint"><kbd>Esc</kbd> hide</span>
+      </div>
+    </footer>
+
+    <!-- Modal: New Project -->
+    <div id="modal-new-project" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="modal-title">New Project</h2>
+          <button class="btn-modal-close" id="btn-close-new-project">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="new-project-name">Project Name</label>
+            <input
+              type="text"
+              id="new-project-name"
+              class="form-input"
+              placeholder="e.g. Invoice API"
+              autocomplete="off"
+            />
+            <div id="new-project-error" class="form-error hidden"></div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="btn-submit-new-project" class="btn-primary">Create Project</button>
+          </div>
+
+          <div class="modal-divider"><span>OR</span></div>
+
+          <div class="plan-chatgpt-cta">
+            <button id="btn-modal-chatgpt" class="btn-secondary full-width">
+              ⚡ Plan with ChatGPT
+            </button>
+            <p class="plan-sub">Generates a structured plan to materialize your project</p>
+          </div>
+
+          <div id="modal-dropzone" class="modal-dropzone">
+            <span class="modal-drop-icon">📄</span>
+            <p class="modal-drop-text">Drop a planning Markdown file here</p>
+            <span class="modal-drop-sub">filename.md → Projects\filename\filename.md</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Collision Dialog -->
+    <div id="modal-collision" class="modal-overlay hidden">
+      <div class="modal-card warning">
+        <div class="modal-header">
+          <h2 class="modal-title">Project Already Exists</h2>
+          <button class="btn-modal-close" id="btn-close-collision">✕</button>
+        </div>
+        <div class="modal-body">
+          <p id="collision-message" class="collision-text">
+            A project with this name already exists in your projects directory.
+          </p>
+          <div class="collision-buttons" id="collision-actions">
+            <!-- Dynamically populated buttons (Open Existing, Copy Into Existing, Replace, Cancel) -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Settings -->
+    <div id="modal-settings" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="modal-title">Settings</h2>
+          <button class="btn-modal-close" id="btn-close-settings">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="settings-projects-root">Projects Root Directory</label>
+            <input type="text" id="settings-projects-root" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label for="settings-hotkey">Global Hotkey</label>
+            <input type="text" id="settings-hotkey" class="form-input" placeholder="Ctrl+Alt+Space" />
+          </div>
+
+          <div class="form-group">
+            <label for="settings-chatgpt-mode">ChatGPT Mode</label>
+            <select id="settings-chatgpt-mode" class="form-select">
+              <option value="auto">Auto (Desktop app with Web fallback)</option>
+              <option value="desktop">Desktop App (chatgpt://)</option>
+              <option value="web">Web Browser (https://chatgpt.com/)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="settings-antigravity-exe">Antigravity Executable (Optional Override)</label>
+            <input type="text" id="settings-antigravity-exe" class="form-input" placeholder="Leave empty for auto-detection" />
+          </div>
+
+          <div class="form-group-checkbox">
+            <input type="checkbox" id="settings-startup" class="form-checkbox" />
+            <label for="settings-startup">Launch silently on Windows startup</label>
+          </div>
+
+          <div class="modal-actions">
+            <button id="btn-save-settings" class="btn-primary">Save Settings</button>
+            <button id="btn-cancel-settings" class="btn-secondary">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
