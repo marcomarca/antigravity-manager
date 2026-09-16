@@ -17,7 +17,9 @@ export class ConfigService {
     const configDir = path.join(appData, "Antigravity Project Launcher");
     this.configPath = path.join(configDir, "config.json");
 
-    const defaultProjectsRoot = path.join(os.homedir(), "Projects");
+    const defaultProjectsRoot = fs.existsSync("D:\\apps-2026")
+      ? "D:\\apps-2026"
+      : path.join(os.homedir(), "Projects");
 
     this.currentConfig = {
       version: 1,

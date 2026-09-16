@@ -13,11 +13,15 @@ export class AntigravityLauncher {
     const executable = await antigravityLocator.locate(customExecutable);
 
     try {
-      logger.info(`Launching Antigravity: "${executable}" with target: "${targetPath}"`);
+      logger.info(`Launching Antigravity IDE: "${executable}" with target: "${targetPath}"`);
+
+      const isWindowsScript = process.platform === "win32" && /\.(cmd|bat)$/i.test(executable);
+
       const child = spawn(executable, [targetPath], {
         detached: true,
         stdio: "ignore",
-        windowsHide: false
+        windowsHide: true,
+        shell: isWindowsScript
       });
 
       child.on("error", (err) => {
