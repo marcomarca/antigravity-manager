@@ -96,6 +96,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
 
   // 3. Search and Input Listeners
+  const clearSearch = (): void => {
+    searchInput.value = "";
+    btnClearSearch.classList.add("hidden");
+    handleSearchInput("");
+    searchInput.focus();
+  };
+
   searchInput.addEventListener("input", () => {
     const val = searchInput.value;
     btnClearSearch.classList.toggle("hidden", val.length === 0);
@@ -103,10 +110,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   btnClearSearch.addEventListener("click", () => {
-    searchInput.value = "";
-    btnClearSearch.classList.add("hidden");
-    handleSearchInput("");
-    searchInput.focus();
+    clearSearch();
   });
 
   // Global Keyboard Routing
@@ -124,6 +128,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       },
       closeOrHide: async () => {
         await window.app.window.hide();
+      },
+      focusNote: () => {
+        if (!noteTextarea.disabled) {
+          noteTextarea.focus();
+          noteTextarea.setSelectionRange(noteTextarea.value.length, noteTextarea.value.length);
+        }
+      },
+      focusSearch: () => {
+        searchInput.focus();
+        searchInput.select();
+      },
+      clearSearch: () => {
+        clearSearch();
       }
     });
   });
