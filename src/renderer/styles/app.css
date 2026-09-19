@@ -822,6 +822,55 @@ kbd {
   margin-top: 2px;
 }
 
+/* Settings Update Box */
+.settings-update-box {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.update-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.update-version-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.update-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.app-version-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.btn-check-updates {
+  padding: 4px 10px;
+  font-size: 11.5px;
+}
+
+.update-status-msg {
+  font-size: 11.5px;
+  color: var(--text-accent);
+  line-height: 1.3;
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;

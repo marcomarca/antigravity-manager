@@ -73,6 +73,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnResetPrompt = document.getElementById("btn-reset-prompt") as HTMLButtonElement;
   const settingsAntigravityExe = document.getElementById("settings-antigravity-exe") as HTMLInputElement;
   const settingsStartup = document.getElementById("settings-startup") as HTMLInputElement;
+  const appVersionDisplay = document.getElementById("app-version-display") as HTMLElement;
+  const btnCheckUpdates = document.getElementById("btn-check-updates") as HTMLButtonElement;
+  const updateStatusMsg = document.getElementById("update-status-msg") as HTMLElement;
+  const btnInstallUpdate = document.getElementById("btn-install-update") as HTMLButtonElement;
   const btnSaveSettings = document.getElementById("btn-save-settings") as HTMLButtonElement;
   const btnCancelSettings = document.getElementById("btn-cancel-settings") as HTMLButtonElement;
   const btnCloseSettings = document.getElementById("btn-close-settings") as HTMLElement;
@@ -101,20 +105,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     showToast
   );
   setupCollisionDialog(modalCollision, collisionMessage, collisionActions, () => {}, showToast);
-  setupSettingsModal(
-    modalSettings,
-    settingsProjectsRoot,
-    settingsHotkey,
-    settingsChatgptMode,
-    settingsCustomPrompt,
-    btnResetPrompt,
-    settingsAntigravityExe,
-    settingsStartup,
-    btnSaveSettings,
-    btnCancelSettings,
-    btnCloseSettings,
+  setupSettingsModal({
+    modal: modalSettings,
+    projectsRootInput: settingsProjectsRoot,
+    hotkeyInput: settingsHotkey,
+    chatgptModeSelect: settingsChatgptMode,
+    customPromptTextarea: settingsCustomPrompt,
+    resetPromptBtn: btnResetPrompt,
+    antigravityExeInput: settingsAntigravityExe,
+    startupCheckbox: settingsStartup,
+    appVersionDisplay,
+    btnCheckUpdates,
+    updateStatusMsg,
+    btnInstallUpdate,
+    saveBtn: btnSaveSettings,
+    cancelBtn: btnCancelSettings,
+    closeBtn: btnCloseSettings,
     showToast
-  );
+  });
 
   // 3. Search and Input Listeners
   const clearSearch = (): void => {

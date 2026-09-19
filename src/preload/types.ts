@@ -29,6 +29,13 @@ export interface IAppApi {
   utils: {
     getPathForFile: (file: File) => string;
   };
+  updater: {
+    checkForUpdates: () => Promise<{ success: boolean; message?: string }>;
+    quitAndInstall: () => Promise<void>;
+    getStatus: () => Promise<{ state: string; version?: string; percent?: number; message?: string }>;
+    getVersion: () => Promise<string>;
+    onStatusChange: (callback: (status: { state: string; version?: string; percent?: number; message?: string }) => void) => () => void;
+  };
 }
 
 declare global {

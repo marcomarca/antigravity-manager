@@ -4,9 +4,11 @@ import { MetadataService } from "../services/metadata-service";
 import { DiscoveryService } from "../services/discovery-service";
 import { ProjectService } from "../services/project-service";
 import { PlanningService } from "../services/planning-service";
+import { UpdateService } from "../services/update-service";
 import { registerProjectsIpc } from "./ipc/projects-ipc";
 import { registerPlanningIpc } from "./ipc/planning-ipc";
 import { registerSettingsIpc } from "./ipc/settings-ipc";
+import { registerUpdaterIpc } from "./ipc/updater-ipc";
 import { windowManager } from "./window";
 import { hotkeyManager } from "./hotkeys";
 import { trayManager } from "./tray";
@@ -31,6 +33,7 @@ if (!gotTheLock) {
   const discoveryService = new DiscoveryService(configService, metadataService);
   const projectService = new ProjectService(configService, metadataService);
   const planningService = new PlanningService(configService);
+  const updateService = new UpdateService();
 
   const applyConfig = (config: Config) => {
     // Update startup setting
@@ -62,6 +65,10 @@ if (!gotTheLock) {
     registerSettingsIpc(configService, (newConfig) => {
       applyConfig(newConfig);
     });
+    registerUpdaterIpc(updateService);
+
+    // Initialize auto-update service
+    updateService.init();
 
     // Create main launcher window
     windowManager.create();

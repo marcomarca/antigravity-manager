@@ -4,6 +4,11 @@ directories:
   output: release
   buildResources: resources
 
+publish:
+  provider: github
+  owner: marcomarca
+  repo: antigravity-manager
+
 files:
   - "dist/**/*"
   - "resources/**/*"

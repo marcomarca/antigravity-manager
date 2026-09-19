@@ -19,7 +19,7 @@ async function build(): Promise<void> {
     target: "node22",
     format: "cjs",
     outfile: path.join(distDir, "main", "main.js"),
-    external: ["electron", "better-sqlite3", "node:sqlite"],
+    external: ["electron", "electron-updater", "better-sqlite3", "node:sqlite"],
     sourcemap: true
   });
 

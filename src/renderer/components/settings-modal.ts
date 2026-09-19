@@ -1,20 +1,130 @@
 import { store } from "../state";
 import type { ChatGPTMode } from "../../domain/types";
 
-export function setupSettingsModal(
-  modal: HTMLElement,
-  projectsRootInput: HTMLInputElement,
-  hotkeyInput: HTMLInputElement,
-  chatgptModeSelect: HTMLSelectElement,
-  customPromptTextarea: HTMLTextAreaElement,
-  resetPromptBtn: HTMLButtonElement,
-  antigravityExeInput: HTMLInputElement,
-  startupCheckbox: HTMLInputElement,
-  saveBtn: HTMLButtonElement,
-  cancelBtn: HTMLButtonElement,
-  closeBtn: HTMLElement,
-  showToast: (msg: string) => void
-): void {
+export interface SettingsModalElements {
+  modal: HTMLElement;
+  projectsRootInput: HTMLInputElement;
+  hotkeyInput: HTMLInputElement;
+  chatgptModeSelect: HTMLSelectElement;
+  customPromptTextarea: HTMLTextAreaElement;
+  resetPromptBtn: HTMLButtonElement;
+  antigravityExeInput: HTMLInputElement;
+  startupCheckbox: HTMLInputElement;
+  appVersionDisplay: HTMLElement;
+  btnCheckUpdates: HTMLButtonElement;
+  updateStatusMsg: HTMLElement;
+  btnInstallUpdate: HTMLButtonElement;
+  saveBtn: HTMLButtonElement;
+  cancelBtn: HTMLButtonElement;
+  closeBtn: HTMLElement;
+  showToast: (msg: string) => void;
+}
+
+export function setupSettingsModal(elements: SettingsModalElements): void {
+  const {
+    modal,
+    projectsRootInput,
+    hotkeyInput,
+    chatgptModeSelect,
+    customPromptTextarea,
+    resetPromptBtn,
+    antigravityExeInput,
+    startupCheckbox,
+    appVersionDisplay,
+    btnCheckUpdates,
+    updateStatusMsg,
+    btnInstallUpdate,
+    saveBtn,
+    cancelBtn,
+    closeBtn,
+    showToast
+  } = elements;
+
+  const renderUpdateStatus = (status: { state: string; version?: string; percent?: number; message?: string }) => {
+    if (!status) return;
+
+    switch (status.state) {
+      case "checking":
+        updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.textContent = "Checking for updates...";
+        btnCheckUpdates.disabled = true;
+        btnInstallUpdate.classList.add("hidden");
+        break;
+      case "available":
+        updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.textContent = `New version v${status.version || ""} found. Downloading...`;
+        btnCheckUpdates.disabled = true;
+        btnInstallUpdate.classList.add("hidden");
+        break;
+      case "downloading":
+        updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.textContent = `Downloading update: ${status.percent || 0}%`;
+        btnCheckUpdates.disabled = true;
+        btnInstallUpdate.classList.add("hidden");
+        break;
+      case "downloaded":
+        updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.textContent = `Version v${status.version || ""} is ready to install.`;
+        btnInstallUpdate.classList.remove("hidden");
+        btnCheckUpdates.disabled = false;
+        break;
+      case "not-available":
+        updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.textContent = "You are on the latest version.";
+        btnCheckUpdates.disabled = false;
+        btnInstallUpdate.classList.add("hidden");
+        break;
+      case "error":
+        updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.textContent = status.message || "Failed checking for updates.";
+        btnCheckUpdates.disabled = false;
+        btnInstallUpdate.classList.add("hidden");
+        break;
+      default:
+        updateStatusMsg.classList.add("hidden");
+        btnInstallUpdate.classList.add("hidden");
+        btnCheckUpdates.disabled = false;
+        break;
+    }
+  };
+
+  // Listen for auto-updater status broadcasts
+  if (window.app.updater?.onStatusChange) {
+    window.app.updater.onStatusChange((status) => {
+      renderUpdateStatus(status);
+      if (status.state === "downloaded") {
+        showToast(`Update v${status.version || ""} downloaded! Restart to apply.`);
+      }
+    });
+  }
+
+  // Fetch initial version
+  if (window.app.updater?.getVersion) {
+    window.app.updater.getVersion().then((ver) => {
+      appVersionDisplay.textContent = `v${ver}`;
+    }).catch(() => {});
+  }
+
+  btnCheckUpdates.addEventListener("click", async () => {
+    try {
+      btnCheckUpdates.disabled = true;
+      updateStatusMsg.classList.remove("hidden");
+      updateStatusMsg.textContent = "Checking GitHub Releases...";
+      const res = await window.app.updater.checkForUpdates();
+      if (!res.success && res.message) {
+        updateStatusMsg.textContent = res.message;
+      }
+    } catch (err: any) {
+      updateStatusMsg.textContent = err.message || "Failed to check for updates.";
+    } finally {
+      btnCheckUpdates.disabled = false;
+    }
+  });
+
+  btnInstallUpdate.addEventListener("click", () => {
+    window.app.updater.quitAndInstall();
+  });
+
   store.subscribe(() => {
     const { activeModal, config } = store.getState();
     if (activeModal === "settings") {
@@ -26,6 +136,11 @@ export function setupSettingsModal(
         customPromptTextarea.value = config.customPlanningPrompt || "";
         antigravityExeInput.value = config.antigravityExecutable || "";
         startupCheckbox.checked = config.launchAtStartup !== false;
+      }
+
+      // Refresh current update status
+      if (window.app.updater?.getStatus) {
+        window.app.updater.getStatus().then((st) => renderUpdateStatus(st)).catch(() => {});
       }
     } else {
       modal.classList.add("hidden");

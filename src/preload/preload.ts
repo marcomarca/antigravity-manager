@@ -59,6 +59,19 @@ const api: IAppApi = {
         return "";
       }
     }
+  },
+  updater: {
+    checkForUpdates: (): Promise<{ success: boolean; message?: string }> => ipcRenderer.invoke("updater:check"),
+    quitAndInstall: (): Promise<void> => ipcRenderer.invoke("updater:quitAndInstall"),
+    getStatus: (): Promise<any> => ipcRenderer.invoke("updater:getStatus"),
+    getVersion: (): Promise<string> => ipcRenderer.invoke("updater:getVersion"),
+    onStatusChange: (callback: (status: any) => void): (() => void) => {
+      const handler = (_event: any, status: any) => callback(status);
+      ipcRenderer.on("updater:statusChanged", handler);
+      return () => {
+        ipcRenderer.removeListener("updater:statusChanged", handler);
+      };
+    }
   }
 };
 
