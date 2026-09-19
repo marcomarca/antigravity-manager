@@ -12,6 +12,7 @@ export function rankProject(project: Project, query: string): number {
 
   const name = project.name.toLowerCase();
   const path = project.path.toLowerCase();
+  const description = (project.description || "").toLowerCase();
   const note = (project.note || "").toLowerCase();
 
   // Tier 1: Exact name
@@ -30,13 +31,19 @@ export function rankProject(project: Project, query: string): number {
     return 600 - nameIdx;
   }
 
-  // Tier 4: Note includes query
+  // Tier 4: Description includes query
+  const descIdx = description.indexOf(q);
+  if (descIdx >= 0) {
+    return 500 - Math.min(descIdx, 100);
+  }
+
+  // Tier 5: Note includes query
   const noteIdx = note.indexOf(q);
   if (noteIdx >= 0) {
     return 400 - Math.min(noteIdx, 100);
   }
 
-  // Tier 5: Path includes query
+  // Tier 6: Path includes query
   const pathIdx = path.indexOf(q);
   if (pathIdx >= 0) {
     return 200 - Math.min(pathIdx, 100);

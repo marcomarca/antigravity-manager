@@ -52,14 +52,42 @@ export class MetadataService {
   public async setNote(projectPath: string, note: string): Promise<void> {
     const key = canonicalPathKey(projectPath);
     const trimmed = note.trim();
+    const existing = this.state.projects[key] || {};
 
     if (trimmed.length === 0) {
+      delete existing.note;
+    } else {
+      existing.note = trimmed;
+    }
+
+    if (!existing.note && !existing.description) {
       delete this.state.projects[key];
     } else {
-      this.state.projects[key] = {
-        ...this.state.projects[key],
-        note: trimmed
-      };
+      this.state.projects[key] = existing;
+    }
+
+    await this.save();
+  }
+
+  public getDescription(projectPath: string): string | undefined {
+    return this.get(projectPath).description;
+  }
+
+  public async setDescription(projectPath: string, description: string): Promise<void> {
+    const key = canonicalPathKey(projectPath);
+    const trimmed = description.trim();
+    const existing = this.state.projects[key] || {};
+
+    if (trimmed.length === 0) {
+      delete existing.description;
+    } else {
+      existing.description = trimmed;
+    }
+
+    if (!existing.note && !existing.description) {
+      delete this.state.projects[key];
+    } else {
+      this.state.projects[key] = existing;
     }
 
     await this.save();

@@ -8,7 +8,8 @@ const api: IAppApi = {
     open: (path: string): Promise<void> => ipcRenderer.invoke("projects:open", path),
     create: (name: string): Promise<Project> => ipcRenderer.invoke("projects:create", name),
     importMarkdown: (req: ImportMarkdownRequest): Promise<Project> => ipcRenderer.invoke("projects:importMarkdown", req),
-    setNote: (path: string, note: string): Promise<void> => ipcRenderer.invoke("projects:setNote", path, note)
+    setNote: (path: string, note: string): Promise<void> => ipcRenderer.invoke("projects:setNote", path, note),
+    setDescription: (path: string, description: string): Promise<void> => ipcRenderer.invoke("projects:setDescription", path, description)
   },
   planning: {
     start: (): Promise<{ pasted: boolean; promptCopied: boolean }> => ipcRenderer.invoke("planning:start"),

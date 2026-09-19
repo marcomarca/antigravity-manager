@@ -59,7 +59,8 @@ export class ProjectService {
         antigravityRecent: false,
         projectsRoot: true
       },
-      note: this.metadataService.getNote(projectPath)
+      note: this.metadataService.getNote(projectPath),
+      description: this.metadataService.getDescription(projectPath)
     };
   }
 
@@ -144,7 +145,8 @@ export class ProjectService {
         antigravityRecent: false,
         projectsRoot: true
       },
-      note: this.metadataService.getNote(targetProjectDir)
+      note: this.metadataService.getNote(targetProjectDir),
+      description: this.metadataService.getDescription(targetProjectDir)
     };
   }
 

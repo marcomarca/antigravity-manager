@@ -63,4 +63,34 @@ describe("Search Ranker", () => {
     expect(results[0]?.name).toBe("Invoice API");
     expect(results[1]?.name).toBe("Website");
   });
+
+  it("matches and ranks projects when search term is in project description", () => {
+    const projectsWithDesc: Project[] = [
+      {
+        name: "Dashboard",
+        path: "C:\\Projects\\Dashboard",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        description: "Billing overview and metrics engine"
+      },
+      {
+        name: "Backend Auth",
+        path: "C:\\Projects\\Backend Auth",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        note: "Check billing keys"
+      }
+    ];
+
+    const results = filterAndRankProjects(projectsWithDesc, "metrics");
+    expect(results.length).toBe(1);
+    expect(results[0]?.name).toBe("Dashboard");
+
+    // Description ranks higher than note for identical query
+    const resultsBilling = filterAndRankProjects(projectsWithDesc, "billing");
+    expect(resultsBilling[0]?.name).toBe("Dashboard");
+    expect(resultsBilling[1]?.name).toBe("Backend Auth");
+  });
 });

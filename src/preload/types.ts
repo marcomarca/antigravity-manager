@@ -7,6 +7,7 @@ export interface IAppApi {
     create: (name: string) => Promise<Project>;
     importMarkdown: (req: ImportMarkdownRequest) => Promise<Project>;
     setNote: (path: string, note: string) => Promise<void>;
+    setDescription: (path: string, description: string) => Promise<void>;
   };
   planning: {
     start: () => Promise<{ pasted: boolean; promptCopied: boolean }>;

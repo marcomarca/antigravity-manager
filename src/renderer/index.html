@@ -45,18 +45,53 @@
         </div>
       </div>
 
-      <!-- Quick Note Sidebar -->
+      <!-- Project Details Sidebar (Definition & Notes) -->
       <aside class="note-sidebar" id="note-sidebar">
-        <div class="note-sidebar-header">
-          <span class="note-title">Project Note</span>
-          <span id="note-save-indicator" class="note-saved-badge hidden">Saved</span>
-        </div>
-        <textarea
-          id="project-note-input"
-          class="note-textarea"
-          placeholder="Add project notes, tasks, or reminders..."
-          spellcheck="false"
-        ></textarea>
+        <!-- Section 1: Project Definition (Read-only by default, toggleable via pencil) -->
+        <section class="details-section definition-section" id="definition-section">
+          <div class="details-section-header">
+            <span class="details-title">Definition</span>
+            <div class="details-header-actions">
+              <span id="desc-save-indicator" class="details-saved-badge hidden">Saved</span>
+              <button id="btn-edit-desc" class="btn-edit-pencil" title="Edit definition">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="project-desc-view" class="desc-view empty">
+            <span class="desc-placeholder">No definition. Click ✏️ to add what this project does.</span>
+          </div>
+          <div id="project-desc-edit-wrap" class="desc-edit-wrap hidden">
+            <textarea
+              id="project-desc-input"
+              class="desc-textarea"
+              placeholder="What does this project do? (Summary / Definition)..."
+              spellcheck="false"
+              rows="3"
+            ></textarea>
+            <div class="desc-edit-actions">
+              <button id="btn-save-desc" class="btn-mini btn-mini-primary" type="button">Save</button>
+              <button id="btn-cancel-desc" class="btn-mini btn-mini-secondary" type="button">Cancel</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Quick Notes (Always directly editable) -->
+        <section class="details-section notes-section" id="notes-section">
+          <div class="details-section-header">
+            <span class="details-title">Notes & Scratchpad</span>
+            <span id="note-save-indicator" class="details-saved-badge hidden">Saved</span>
+          </div>
+          <textarea
+            id="project-note-input"
+            class="note-textarea"
+            placeholder="Add project notes, tasks, or reminders..."
+            spellcheck="false"
+          ></textarea>
+        </section>
       </aside>
     </main>
 

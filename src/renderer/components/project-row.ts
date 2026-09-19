@@ -49,9 +49,16 @@ export function createProjectRowElement(
     badgesHtml += `<span class="badge badge-workspace">Workspace</span>`;
   }
 
-  let noteHtml = "";
-  if (project.note) {
-    noteHtml = `<div class="project-row-note-snippet">${highlightMatch(project.note, query)}</div>`;
+  let snippetHtml = "";
+  const q = query.trim().toLowerCase();
+  if (project.description && q && project.description.toLowerCase().includes(q)) {
+    snippetHtml = `<div class="project-row-note-snippet">${highlightMatch(project.description, query)}</div>`;
+  } else if (project.note && q && project.note.toLowerCase().includes(q)) {
+    snippetHtml = `<div class="project-row-note-snippet">${highlightMatch(project.note, query)}</div>`;
+  } else if (project.description) {
+    snippetHtml = `<div class="project-row-note-snippet">${highlightMatch(project.description, query)}</div>`;
+  } else if (project.note) {
+    snippetHtml = `<div class="project-row-note-snippet">${highlightMatch(project.note, query)}</div>`;
   }
 
   row.innerHTML = `
@@ -65,7 +72,7 @@ export function createProjectRowElement(
       </div>
     </div>
     <div class="project-row-path">${highlightMatch(project.path, query)}</div>
-    ${noteHtml}
+    ${snippetHtml}
   `;
 
   row.addEventListener("click", () => {

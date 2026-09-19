@@ -55,4 +55,13 @@ export function registerProjectsIpc(
       throw AppError.from(err).toPayload();
     }
   });
+
+  ipcMain.handle("projects:setDescription", async (_event, path: string, description: string) => {
+    try {
+      await metadataService.setDescription(path, description);
+    } catch (err) {
+      logger.error(`IPC Error in projects:setDescription for "${path}"`, err);
+      throw AppError.from(err).toPayload();
+    }
+  });
 }

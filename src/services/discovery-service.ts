@@ -38,7 +38,8 @@ export class DiscoveryService {
             projectsRoot: false
           },
           recentIndex: rec.recentIndex,
-          note: this.metadataService.getNote(rec.path)
+          note: this.metadataService.getNote(rec.path),
+          description: this.metadataService.getDescription(rec.path)
         });
       }
     } catch (err) {
@@ -57,7 +58,8 @@ export class DiscoveryService {
         } else {
           map.set(key, {
             ...rootProj,
-            note: this.metadataService.getNote(rootProj.path)
+            note: this.metadataService.getNote(rootProj.path),
+            description: this.metadataService.getDescription(rootProj.path)
           });
         }
       }

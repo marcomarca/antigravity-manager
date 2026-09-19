@@ -12,10 +12,12 @@ export interface Project {
   exists: boolean;
   source: ProjectSource;
   recentIndex?: number;
+  description?: string;
   note?: string;
 }
 
 export interface ProjectMetadata {
+  description?: string;
   note?: string;
 }
 
@@ -63,6 +65,11 @@ export interface CreateProjectRequest {
 export interface ImportMarkdownRequest {
   filePath: string;
   overrideCollision?: "open" | "copy_into_existing" | "replace";
+}
+
+export interface SetDescriptionRequest {
+  path: string;
+  description: string;
 }
 
 export interface SetNoteRequest {

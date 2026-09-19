@@ -1,7 +1,7 @@
 import { store } from "./state";
 import { handleKeyNavigation, handleSearchInput } from "./search";
 import { setupProjectList } from "./components/launcher";
-import { setupNoteEditor } from "./components/note-editor";
+import { setupProjectDetails } from "./components/note-editor";
 import { setupNewProjectModal } from "./components/new-project-modal";
 import { setupMarkdownDropzones } from "./components/markdown-dropzone";
 import { setupCollisionDialog } from "./components/collision-dialog";
@@ -33,8 +33,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnClearSearch = document.getElementById("btn-clear-search") as HTMLButtonElement;
   const projectsList = document.getElementById("projects-list") as HTMLElement;
   const emptyState = document.getElementById("empty-state") as HTMLElement;
+
+  // Project Details Sidebar elements
+  const descView = document.getElementById("project-desc-view") as HTMLElement;
+  const descEditWrap = document.getElementById("project-desc-edit-wrap") as HTMLElement;
+  const descInput = document.getElementById("project-desc-input") as HTMLTextAreaElement;
+  const btnEditDesc = document.getElementById("btn-edit-desc") as HTMLButtonElement;
+  const btnSaveDesc = document.getElementById("btn-save-desc") as HTMLButtonElement;
+  const btnCancelDesc = document.getElementById("btn-cancel-desc") as HTMLButtonElement;
+  const descSavedBadge = document.getElementById("desc-save-indicator") as HTMLElement;
+
   const noteTextarea = document.getElementById("project-note-input") as HTMLTextAreaElement;
   const noteSavedBadge = document.getElementById("note-save-indicator") as HTMLElement;
+
   const globalDropzone = document.getElementById("global-dropzone") as HTMLElement;
   const modalDropzone = document.getElementById("modal-dropzone") as HTMLElement;
 
@@ -68,7 +79,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 2. Setup Subcomponents
   setupProjectList(projectsList, emptyState, openProject);
-  setupNoteEditor(noteTextarea, noteSavedBadge);
+  setupProjectDetails({
+    descView,
+    descEditWrap,
+    descInput,
+    btnEditDesc,
+    btnSaveDesc,
+    btnCancelDesc,
+    descSavedBadge,
+    noteTextarea,
+    noteSavedBadge
+  });
   setupMarkdownDropzones(globalDropzone, modalDropzone, showToast);
   setupNewProjectModal(
     modalNewProject,
