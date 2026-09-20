@@ -1,5 +1,13 @@
 export type ProjectType = "folder" | "workspace";
 
+export type SortMode =
+  | "recent"
+  | "name_asc"
+  | "name_desc"
+  | "modified_desc"
+  | "created_desc"
+  | "created_asc";
+
 export interface ProjectSource {
   antigravityRecent: boolean;
   projectsRoot: boolean;
@@ -14,6 +22,8 @@ export interface Project {
   recentIndex?: number;
   description?: string;
   note?: string;
+  createdAt?: number;
+  modifiedAt?: number;
 }
 
 export interface ProjectMetadata {
@@ -36,6 +46,7 @@ export interface Config {
   antigravityExecutable: string | null;
   chatgptMode: ChatGPTMode;
   customPlanningPrompt?: string;
+  defaultSortMode?: SortMode;
 }
 
 export type AppErrorCode =

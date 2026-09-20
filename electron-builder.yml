@@ -31,7 +31,7 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: Antigravity Project Launcher
-  artifactName: "${productName}-Setup-${version}.${ext}"
+  artifactName: "Antigravity-Project-Launcher-Setup-${version}.${ext}"
 
 portable:
   artifactName: "${productName} ${version} Portable.${ext}"

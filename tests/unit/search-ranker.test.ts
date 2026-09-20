@@ -93,4 +93,169 @@ describe("Search Ranker", () => {
     expect(resultsBilling[0]?.name).toBe("Dashboard");
     expect(resultsBilling[1]?.name).toBe("Backend Auth");
   });
+
+  describe("Sort Modes", () => {
+    const timedProjects: Project[] = [
+      {
+        name: "Charlie App",
+        path: "C:\\Projects\\Charlie App",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        createdAt: 1000,
+        modifiedAt: 5000
+      },
+      {
+        name: "Alpha App",
+        path: "C:\\Projects\\Alpha App",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: true, projectsRoot: true },
+        recentIndex: 1,
+        createdAt: 3000,
+        modifiedAt: 2000
+      },
+      {
+        name: "Bravo App",
+        path: "C:\\Projects\\Bravo App",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: true, projectsRoot: true },
+        recentIndex: 0,
+        createdAt: 2000,
+        modifiedAt: 4000
+      },
+      {
+        name: "Delta App",
+        path: "C:\\Projects\\Delta App",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        createdAt: 4000,
+        modifiedAt: 1000
+      }
+    ];
+
+    it("sorts by 'recent': recentIndex first, then modifiedAt", () => {
+      const sorted = filterAndRankProjects(timedProjects, "", "recent");
+      expect(sorted.map((p) => p.name)).toEqual([
+        "Bravo App",   // recentIndex: 0
+        "Alpha App",   // recentIndex: 1
+        "Charlie App", // modifiedAt: 5000
+        "Delta App"    // modifiedAt: 1000
+      ]);
+    });
+
+    it("sorts by 'name_asc': strictly alphabetical A to Z", () => {
+      const sorted = filterAndRankProjects(timedProjects, "", "name_asc");
+      expect(sorted.map((p) => p.name)).toEqual([
+        "Alpha App",
+        "Bravo App",
+        "Charlie App",
+        "Delta App"
+      ]);
+    });
+
+    it("sorts by 'name_desc': strictly alphabetical Z to A", () => {
+      const sorted = filterAndRankProjects(timedProjects, "", "name_desc");
+      expect(sorted.map((p) => p.name)).toEqual([
+        "Delta App",
+        "Charlie App",
+        "Bravo App",
+        "Alpha App"
+      ]);
+    });
+
+    it("sorts by 'created_desc': newest created first", () => {
+      const sorted = filterAndRankProjects(timedProjects, "", "created_desc");
+      expect(sorted.map((p) => p.name)).toEqual([
+        "Delta App",   // createdAt: 4000
+        "Alpha App",   // createdAt: 3000
+        "Bravo App",   // createdAt: 2000
+        "Charlie App"  // createdAt: 1000
+      ]);
+    });
+
+    it("sorts by 'created_asc': oldest created first", () => {
+      const sorted = filterAndRankProjects(timedProjects, "", "created_asc");
+      expect(sorted.map((p) => p.name)).toEqual([
+        "Charlie App", // createdAt: 1000
+        "Bravo App",   // createdAt: 2000
+        "Alpha App",   // createdAt: 3000
+        "Delta App"    // createdAt: 4000
+      ]);
+    });
+
+    it("sorts by 'modified_desc': most recently modified first", () => {
+      const sorted = filterAndRankProjects(timedProjects, "", "modified_desc");
+      expect(sorted.map((p) => p.name)).toEqual([
+        "Charlie App", // modifiedAt: 5000
+        "Bravo App",   // modifiedAt: 4000
+        "Alpha App",   // modifiedAt: 2000
+        "Delta App"    // modifiedAt: 1000
+      ]);
+    });
+
+    it("applies sortMode as tie-breaker for identical search match scores", () => {
+      const tieProjects: Project[] = [
+        {
+          name: "Project D",
+          path: "C:\\Projects\\Project D",
+          type: "folder",
+          exists: true,
+          source: { antigravityRecent: false, projectsRoot: true },
+          createdAt: 4000
+        },
+        {
+          name: "Project B",
+          path: "C:\\Projects\\Project B",
+          type: "folder",
+          exists: true,
+          source: { antigravityRecent: false, projectsRoot: true },
+          createdAt: 2000
+        },
+        {
+          name: "Project A",
+          path: "C:\\Projects\\Project A",
+          type: "folder",
+          exists: true,
+          source: { antigravityRecent: false, projectsRoot: true },
+          createdAt: 1000
+        },
+        {
+          name: "Project C",
+          path: "C:\\Projects\\Project C",
+          type: "folder",
+          exists: true,
+          source: { antigravityRecent: false, projectsRoot: true },
+          createdAt: 3000
+        }
+      ];
+
+      // Query 'Project' matches all 4 with identical Tier 2 / prefix score
+      const sortedByDesc = filterAndRankProjects(tieProjects, "Project", "name_desc");
+      expect(sortedByDesc.map((p) => p.name)).toEqual([
+        "Project D",
+        "Project C",
+        "Project B",
+        "Project A"
+      ]);
+
+      const sortedByCreated = filterAndRankProjects(tieProjects, "Project", "created_desc");
+      expect(sortedByCreated.map((p) => p.name)).toEqual([
+        "Project D",
+        "Project C",
+        "Project B",
+        "Project A"
+      ]);
+
+      const sortedByAsc = filterAndRankProjects(tieProjects, "Project", "name_asc");
+      expect(sortedByAsc.map((p) => p.name)).toEqual([
+        "Project A",
+        "Project B",
+        "Project C",
+        "Project D"
+      ]);
+    });
+  });
 });

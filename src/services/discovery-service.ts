@@ -27,6 +27,16 @@ export class DiscoveryService {
           continue;
         }
 
+        let createdAt: number | undefined;
+        let modifiedAt: number | undefined;
+        try {
+          const stat = await fs.promises.stat(rec.path);
+          createdAt = stat.birthtimeMs || stat.ctimeMs;
+          modifiedAt = stat.mtimeMs;
+        } catch {
+          // Graceful fallback
+        }
+
         const key = canonicalPathKey(rec.path);
         map.set(key, {
           name: rec.name,
@@ -39,7 +49,9 @@ export class DiscoveryService {
           },
           recentIndex: rec.recentIndex,
           note: this.metadataService.getNote(rec.path),
-          description: this.metadataService.getDescription(rec.path)
+          description: this.metadataService.getDescription(rec.path),
+          createdAt,
+          modifiedAt
         });
       }
     } catch (err) {
@@ -55,6 +67,8 @@ export class DiscoveryService {
 
         if (existing) {
           existing.source.projectsRoot = true;
+          if (!existing.createdAt && rootProj.createdAt) existing.createdAt = rootProj.createdAt;
+          if (!existing.modifiedAt && rootProj.modifiedAt) existing.modifiedAt = rootProj.modifiedAt;
         } else {
           map.set(key, {
             ...rootProj,
@@ -68,6 +82,7 @@ export class DiscoveryService {
     }
 
     const allProjects = Array.from(map.values());
-    return filterAndRankProjects(allProjects, "");
+    const sortMode = config.defaultSortMode || "recent";
+    return filterAndRankProjects(allProjects, "", sortMode);
   }
 }

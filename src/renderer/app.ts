@@ -1,12 +1,12 @@
 import { store } from "./state";
-import { handleKeyNavigation, handleSearchInput } from "./search";
+import { handleKeyNavigation, handleSearchInput, handleSortChange } from "./search";
 import { setupProjectList } from "./components/launcher";
 import { setupProjectDetails } from "./components/note-editor";
 import { setupNewProjectModal } from "./components/new-project-modal";
 import { setupMarkdownDropzones } from "./components/markdown-dropzone";
 import { setupCollisionDialog } from "./components/collision-dialog";
 import { setupSettingsModal } from "./components/settings-modal";
-import type { Project } from "../domain/types";
+import type { Project, SortMode } from "../domain/types";
 
 function showToast(message: string): void {
   const toastEl = document.getElementById("toast");
@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1. Get DOM elements
   const searchInput = document.getElementById("search-input") as HTMLInputElement;
   const btnClearSearch = document.getElementById("btn-clear-search") as HTMLButtonElement;
+  const sortOrderSelect = document.getElementById("sort-order-select") as HTMLSelectElement;
   const projectsList = document.getElementById("projects-list") as HTMLElement;
   const emptyState = document.getElementById("empty-state") as HTMLElement;
 
@@ -142,6 +143,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     clearSearch();
   });
 
+  sortOrderSelect.addEventListener("change", () => {
+    handleSortChange(sortOrderSelect.value as SortMode);
+  });
+
   // Global Keyboard Routing
   window.addEventListener("keydown", (e) => {
     handleKeyNavigation(e, {
@@ -204,8 +209,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.app.projects.list(),
         window.app.settings.get()
       ]);
-      store.setState({ projects, config });
-      handleSearchInput(searchInput.value);
+      const currentSortMode = store.getState().sortMode || config.defaultSortMode || "recent";
+      sortOrderSelect.value = currentSortMode;
+      store.setState({ projects, config, sortMode: currentSortMode });
+      handleSearchInput(searchInput.value, currentSortMode);
     } catch (err) {
       console.error("Failed loading launcher data:", err);
     }

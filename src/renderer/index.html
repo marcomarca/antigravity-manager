@@ -29,6 +29,23 @@
           autofocus
         />
         <button id="btn-clear-search" class="btn-clear hidden" title="Clear Search">✕</button>
+        <div class="sort-selector-box" title="Sort projects">
+          <svg class="sort-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="6" x2="16" y2="6"></line>
+            <line x1="4" y1="12" x2="12" y2="12"></line>
+            <line x1="4" y1="18" x2="8" y2="18"></line>
+            <polyline points="15 15 18 18 21 15"></polyline>
+            <line x1="18" y1="11" x2="18" y2="18"></line>
+          </svg>
+          <select id="sort-order-select" class="sort-order-select" aria-label="Sort projects">
+            <option value="recent">Recent (Usage)</option>
+            <option value="name_asc">Name (A → Z)</option>
+            <option value="name_desc">Name (Z → A)</option>
+            <option value="modified_desc">Recently Modified</option>
+            <option value="created_desc">Newest Created</option>
+            <option value="created_asc">Oldest Created</option>
+          </select>
+        </div>
       </div>
     </header>
 

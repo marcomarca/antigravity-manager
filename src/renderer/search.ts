@@ -1,4 +1,5 @@
 import { filterAndRankProjects } from "../domain/search-ranker";
+import type { SortMode } from "../domain/types";
 import { store } from "./state";
 
 export interface KeyNavigationActions {
@@ -11,15 +12,32 @@ export interface KeyNavigationActions {
   clearSearch?: () => void;
 }
 
-export function handleSearchInput(query: string): void {
+export function handleSearchInput(query: string, sortModeOverride?: SortMode): void {
   const state = store.getState();
-  const filtered = filterAndRankProjects(state.projects, query);
+  const mode = sortModeOverride || state.sortMode;
+  const filtered = filterAndRankProjects(state.projects, query, mode);
 
   store.setState({
     searchQuery: query,
+    sortMode: mode,
     filteredProjects: filtered,
     selectedIndex: 0
   });
+}
+
+export function handleSortChange(sortMode: SortMode): void {
+  const state = store.getState();
+  const filtered = filterAndRankProjects(state.projects, state.searchQuery, sortMode);
+
+  store.setState({
+    sortMode,
+    filteredProjects: filtered,
+    selectedIndex: 0
+  });
+
+  if (typeof window !== "undefined" && window.app?.settings?.update) {
+    window.app.settings.update({ defaultSortMode: sortMode }).catch(() => {});
+  }
 }
 
 export function handleKeyNavigation(

@@ -1,4 +1,4 @@
-import type { Config, ImportMarkdownRequest, Project } from "../domain/types";
+import type { Config, ImportMarkdownRequest, Project, SortMode } from "../domain/types";
 
 export type ModalType = "none" | "new_project" | "settings" | "collision";
 
@@ -15,6 +15,7 @@ export interface AppState {
   filteredProjects: Project[];
   selectedIndex: number;
   searchQuery: string;
+  sortMode: SortMode;
   selectedProject: Project | null;
   activeModal: ModalType;
   collisionContext: CollisionContext | null;
@@ -27,6 +28,7 @@ class StateStore {
     filteredProjects: [],
     selectedIndex: 0,
     searchQuery: "",
+    sortMode: "recent",
     selectedProject: null,
     activeModal: "none",
     collisionContext: null,

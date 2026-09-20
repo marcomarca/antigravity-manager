@@ -12,23 +12,35 @@ export class ProjectsRootProvider {
 
     try {
       const entries = await fs.promises.readdir(projectsRoot, { withFileTypes: true });
-      const projects: Project[] = [];
-
-      for (const entry of entries) {
-        if (entry.isDirectory()) {
+      const dirEntries = entries.filter((e) => e.isDirectory());
+      const projects: Project[] = await Promise.all(
+        dirEntries.map(async (entry) => {
           const fullPath = path.join(projectsRoot, entry.name);
-          projects.push({
+          let createdAt: number | undefined;
+          let modifiedAt: number | undefined;
+
+          try {
+            const stat = await fs.promises.stat(fullPath);
+            createdAt = stat.birthtimeMs || stat.ctimeMs;
+            modifiedAt = stat.mtimeMs;
+          } catch {
+            // Graceful fallback if stat fails
+          }
+
+          return {
             name: entry.name,
             path: normalizePath(fullPath),
-            type: "folder",
+            type: "folder" as const,
             exists: true,
             source: {
               antigravityRecent: false,
               projectsRoot: true
-            }
-          });
-        }
-      }
+            },
+            createdAt,
+            modifiedAt
+          };
+        })
+      );
 
       return projects;
     } catch (err) {

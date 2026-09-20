@@ -1,7 +1,70 @@
-import type { Project } from "./types";
+import type { Project, SortMode } from "./types";
 
 export function normalizeQuery(query: string): string {
   return query.toLowerCase().trim().replace(/\s+/g, " ");
+}
+
+export function sortProjectsByMode(a: Project, b: Project, mode: SortMode): number {
+  switch (mode) {
+    case "recent": {
+      // 1. Antigravity recents by recentIndex ascending (0 is most recent)
+      const aRecent = a.recentIndex !== undefined;
+      const bRecent = b.recentIndex !== undefined;
+
+      if (aRecent && bRecent) {
+        return (a.recentIndex ?? 0) - (b.recentIndex ?? 0);
+      }
+      if (aRecent) return -1;
+      if (bRecent) return 1;
+
+      // 2. Fallback to modifiedAt descending
+      const aMod = a.modifiedAt ?? 0;
+      const bMod = b.modifiedAt ?? 0;
+      if (bMod !== aMod) {
+        return bMod - aMod;
+      }
+
+      return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+    }
+
+    case "name_asc": {
+      return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+    }
+
+    case "name_desc": {
+      return b.name.localeCompare(a.name, undefined, { sensitivity: "base" });
+    }
+
+    case "modified_desc": {
+      const aMod = a.modifiedAt ?? 0;
+      const bMod = b.modifiedAt ?? 0;
+      if (bMod !== aMod) {
+        return bMod - aMod;
+      }
+      return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+    }
+
+    case "created_desc": {
+      const aCreated = a.createdAt ?? 0;
+      const bCreated = b.createdAt ?? 0;
+      if (bCreated !== aCreated) {
+        return bCreated - aCreated;
+      }
+      return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+    }
+
+    case "created_asc": {
+      const aCreated = a.createdAt ?? 0;
+      const bCreated = b.createdAt ?? 0;
+      if (aCreated !== bCreated) {
+        return aCreated - bCreated;
+      }
+      return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+    }
+
+    default:
+      return 0;
+  }
 }
 
 export function rankProject(project: Project, query: string): number {
@@ -53,25 +116,15 @@ export function rankProject(project: Project, query: string): number {
   return -1;
 }
 
-export function filterAndRankProjects(projects: Project[], rawQuery: string): Project[] {
+export function filterAndRankProjects(
+  projects: Project[],
+  rawQuery: string,
+  sortMode: SortMode = "recent"
+): Project[] {
   const query = normalizeQuery(rawQuery);
 
   if (!query) {
-    // Initial order per section 19:
-    // 1. Antigravity recents by recentIndex
-    // 2. Rest from projectsRoot, alphabetically
-    return [...projects].sort((a, b) => {
-      const aRecent = a.recentIndex !== undefined;
-      const bRecent = b.recentIndex !== undefined;
-
-      if (aRecent && bRecent) {
-        return (a.recentIndex ?? 0) - (b.recentIndex ?? 0);
-      }
-      if (aRecent) return -1;
-      if (bRecent) return 1;
-
-      return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
-    });
+    return [...projects].sort((a, b) => sortProjectsByMode(a, b, sortMode));
   }
 
   const scored: Array<{ project: Project; score: number }> = [];
@@ -87,7 +140,7 @@ export function filterAndRankProjects(projects: Project[], rawQuery: string): Pr
     if (b.score !== a.score) {
       return b.score - a.score;
     }
-    return a.project.name.localeCompare(b.project.name);
+    return sortProjectsByMode(a.project, b.project, sortMode);
   });
 
   return scored.map((item) => item.project);

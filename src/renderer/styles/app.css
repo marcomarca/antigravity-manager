@@ -141,6 +141,58 @@ body.app-body {
   background-color: var(--bg-hover);
 }
 
+/* Sort Selector in Search Box */
+.sort-selector-box {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+}
+
+.sort-selector-box:hover {
+  border-color: var(--border-focus);
+  background-color: var(--bg-hover);
+}
+
+.sort-selector-box:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-glow);
+}
+
+.sort-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.sort-order-select {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 11.5px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  padding: 2px 0;
+  margin: 0;
+}
+
+.sort-order-select:hover, .sort-order-select:focus {
+  color: var(--text-primary);
+}
+
+.sort-order-select option {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+
 /* Main Content Area */
 .launcher-content {
   display: flex;
