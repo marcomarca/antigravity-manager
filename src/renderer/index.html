@@ -270,22 +270,42 @@
           </div>
 
           <div class="form-group">
-            <label for="settings-hotkey">Global Hotkey (Show/Hide Launcher)</label>
-            <input type="text" id="settings-hotkey" class="form-input" placeholder="Ctrl+Alt+Space" />
+            <div class="label-with-action">
+              <label for="settings-hotkey">Global Hotkey (Show/Hide Launcher)</label>
+              <button type="button" id="btn-reset-hotkey" class="btn-text-action" title="Restablecer a Ctrl+Alt+Space">Reset</button>
+            </div>
+            <div class="shortcut-input-wrap">
+              <input type="text" id="settings-hotkey" class="form-input shortcut-recorder-input" placeholder="Ctrl+Alt+Space" readonly />
+            </div>
           </div>
 
           <div class="form-group-row">
             <div class="form-group third">
-              <label for="settings-pin-shortcut">Pin Shortcut</label>
-              <input type="text" id="settings-pin-shortcut" class="form-input" placeholder="Ctrl+Shift+P" />
+              <div class="label-with-action">
+                <label for="settings-pin-shortcut">Pin</label>
+                <button type="button" id="btn-reset-pin-shortcut" class="btn-text-action" title="Restablecer a Ctrl+Shift+P">Reset</button>
+              </div>
+              <div class="shortcut-input-wrap">
+                <input type="text" id="settings-pin-shortcut" class="form-input shortcut-recorder-input" placeholder="Ctrl+Shift+P" readonly />
+              </div>
             </div>
             <div class="form-group third">
-              <label for="settings-open-folder-shortcut">Open Folder</label>
-              <input type="text" id="settings-open-folder-shortcut" class="form-input" placeholder="Ctrl+Shift+S" />
+              <div class="label-with-action">
+                <label for="settings-open-folder-shortcut">Open Folder</label>
+                <button type="button" id="btn-reset-open-folder-shortcut" class="btn-text-action" title="Restablecer a Ctrl+Shift+S">Reset</button>
+              </div>
+              <div class="shortcut-input-wrap">
+                <input type="text" id="settings-open-folder-shortcut" class="form-input shortcut-recorder-input" placeholder="Ctrl+Shift+S" readonly />
+              </div>
             </div>
             <div class="form-group third">
-              <label for="settings-copy-path-shortcut">Copy Path</label>
-              <input type="text" id="settings-copy-path-shortcut" class="form-input" placeholder="Ctrl+Shift+C" />
+              <div class="label-with-action">
+                <label for="settings-copy-path-shortcut">Copy Path</label>
+                <button type="button" id="btn-reset-copy-path-shortcut" class="btn-text-action" title="Restablecer a Ctrl+Shift+C">Reset</button>
+              </div>
+              <div class="shortcut-input-wrap">
+                <input type="text" id="settings-copy-path-shortcut" class="form-input shortcut-recorder-input" placeholder="Ctrl+Shift+C" readonly />
+              </div>
             </div>
           </div>
 

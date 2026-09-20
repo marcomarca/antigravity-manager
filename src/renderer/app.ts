@@ -96,6 +96,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const settingsPinShortcut = document.getElementById("settings-pin-shortcut") as HTMLInputElement;
   const settingsOpenFolderShortcut = document.getElementById("settings-open-folder-shortcut") as HTMLInputElement;
   const settingsCopyPathShortcut = document.getElementById("settings-copy-path-shortcut") as HTMLInputElement;
+  const btnResetHotkey = document.getElementById("btn-reset-hotkey") as HTMLButtonElement | null;
+  const btnResetPinShortcut = document.getElementById("btn-reset-pin-shortcut") as HTMLButtonElement | null;
+  const btnResetOpenFolderShortcut = document.getElementById("btn-reset-open-folder-shortcut") as HTMLButtonElement | null;
+  const btnResetCopyPathShortcut = document.getElementById("btn-reset-copy-path-shortcut") as HTMLButtonElement | null;
   const settingsChatgptMode = document.getElementById("settings-chatgpt-mode") as HTMLSelectElement;
   const settingsCustomPrompt = document.getElementById("settings-custom-prompt") as HTMLTextAreaElement;
   const btnResetPrompt = document.getElementById("btn-reset-prompt") as HTMLButtonElement;
@@ -361,6 +365,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     pinShortcutInput: settingsPinShortcut,
     openFolderShortcutInput: settingsOpenFolderShortcut,
     copyPathShortcutInput: settingsCopyPathShortcut,
+    resetHotkeyBtn: btnResetHotkey,
+    resetPinShortcutBtn: btnResetPinShortcut,
+    resetOpenFolderShortcutBtn: btnResetOpenFolderShortcut,
+    resetCopyPathShortcutBtn: btnResetCopyPathShortcut,
     chatgptModeSelect: settingsChatgptMode,
     customPromptTextarea: settingsCustomPrompt,
     resetPromptBtn: btnResetPrompt,

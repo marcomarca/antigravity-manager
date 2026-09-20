@@ -1,5 +1,6 @@
 import { store } from "../state";
 import type { ChatGPTMode } from "../../domain/types";
+import { setupShortcutRecorder } from "../utils/shortcut-recorder";
 
 export interface SettingsModalElements {
   modal: HTMLElement;
@@ -8,6 +9,10 @@ export interface SettingsModalElements {
   pinShortcutInput: HTMLInputElement;
   openFolderShortcutInput: HTMLInputElement;
   copyPathShortcutInput: HTMLInputElement;
+  resetHotkeyBtn?: HTMLButtonElement | null;
+  resetPinShortcutBtn?: HTMLButtonElement | null;
+  resetOpenFolderShortcutBtn?: HTMLButtonElement | null;
+  resetCopyPathShortcutBtn?: HTMLButtonElement | null;
   chatgptModeSelect: HTMLSelectElement;
   customPromptTextarea: HTMLTextAreaElement;
   resetPromptBtn: HTMLButtonElement;
@@ -31,6 +36,10 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
     pinShortcutInput,
     openFolderShortcutInput,
     copyPathShortcutInput,
+    resetHotkeyBtn,
+    resetPinShortcutBtn,
+    resetOpenFolderShortcutBtn,
+    resetCopyPathShortcutBtn,
     chatgptModeSelect,
     customPromptTextarea,
     resetPromptBtn,
@@ -45,6 +54,27 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
     closeBtn,
     showToast
   } = elements;
+
+  // Initialize interactive shortcut recorders with default values and reset buttons
+  setupShortcutRecorder(hotkeyInput, {
+    defaultValue: "Ctrl+Alt+Space",
+    resetBtn: resetHotkeyBtn
+  });
+
+  setupShortcutRecorder(pinShortcutInput, {
+    defaultValue: "Ctrl+Shift+P",
+    resetBtn: resetPinShortcutBtn
+  });
+
+  setupShortcutRecorder(openFolderShortcutInput, {
+    defaultValue: "Ctrl+Shift+S",
+    resetBtn: resetOpenFolderShortcutBtn
+  });
+
+  setupShortcutRecorder(copyPathShortcutInput, {
+    defaultValue: "Ctrl+Shift+C",
+    resetBtn: resetCopyPathShortcutBtn
+  });
 
   const renderUpdateStatus = (status: { state: string; version?: string; percent?: number; message?: string }) => {
     if (!status) return;

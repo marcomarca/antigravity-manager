@@ -35,7 +35,8 @@ export function matchesShortcut(e: KeyboardEvent, shortcutStr?: string): boolean
   if (requiresAlt !== hasAlt) return false;
 
   if (!baseKey) return false;
-  return e.key.toLowerCase() === baseKey;
+  const eventKey = (e.key === " " || e.code === "Space") ? "space" : e.key.toLowerCase();
+  return eventKey === baseKey;
 }
 
 export function handleSearchInput(query: string, sortModeOverride?: SortMode): void {

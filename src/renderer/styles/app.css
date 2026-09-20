@@ -881,6 +881,49 @@ kbd {
   border-color: var(--border-focus);
 }
 
+/* Shortcut Recorder Input */
+.shortcut-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.shortcut-recorder-input {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.shortcut-recorder-input:hover {
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+.shortcut-recorder-input.recording {
+  border-color: var(--accent-primary);
+  background-color: rgba(99, 102, 241, 0.09);
+  color: #c7d2fe;
+  animation: pulseShortcutGlow 1.5s infinite;
+}
+
+@keyframes pulseShortcutGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.55);
+  }
+}
+
+.shortcut-recorder-input.captured {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.35);
+}
+
 .form-group-checkbox {
   display: flex;
   align-items: center;
