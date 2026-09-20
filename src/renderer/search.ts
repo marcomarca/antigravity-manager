@@ -7,6 +7,7 @@ export interface KeyNavigationActions {
   openNewProject: () => void;
   openSettings: () => void;
   closeOrHide: () => void;
+  focusDescription?: () => void;
   focusNote?: () => void;
   focusSearch?: () => void;
   clearSearch?: () => void;
@@ -82,7 +83,7 @@ export function handleKeyNavigation(
     (typeof HTMLTextAreaElement !== "undefined" &&
       (activeEl instanceof HTMLTextAreaElement || targetEl instanceof HTMLTextAreaElement));
 
-  // Context: Note Editor active
+  // Context: Note or Description Editor active
   if (isInsideTextarea) {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
       e.preventDefault();
@@ -98,8 +99,56 @@ export function handleKeyNavigation(
       return;
     }
 
+    // Cyclic Tab from within textareas
+    if (e.key === "Tab") {
+      const activeId = activeEl?.id || targetEl?.id;
+      if (activeId === "project-note-input") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          if (actions.focusDescription) {
+            actions.focusDescription();
+          } else {
+            actions.focusSearch?.();
+          }
+        } else {
+          actions.focusSearch?.();
+        }
+        return;
+      }
+
+      if (activeId === "project-desc-input") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          actions.focusSearch?.();
+        } else {
+          actions.focusNote?.();
+        }
+        return;
+      }
+    }
+
     // Allow native multi-line editing: Enter, Shift+Enter, Arrow keys, etc.
     return;
+  }
+
+  // Context: Description Edit Button active
+  const isEditDescBtn =
+    activeEl?.id === "btn-edit-desc" || targetEl?.id === "btn-edit-desc";
+  if (isEditDescBtn) {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      if (e.shiftKey) {
+        actions.focusSearch?.();
+      } else {
+        actions.focusNote?.();
+      }
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      actions.focusSearch?.();
+      return;
+    }
   }
 
   // Context: Search & List Navigation
@@ -124,6 +173,9 @@ export function handleKeyNavigation(
   }
 
   if (e.key === "Enter") {
+    if (activeEl?.tagName === "BUTTON" || targetEl?.tagName === "BUTTON") {
+      return;
+    }
     e.preventDefault();
     if (state.selectedProject) {
       actions.openSelected();
@@ -131,10 +183,19 @@ export function handleKeyNavigation(
     return;
   }
 
-  if (e.key === "Tab" && !e.shiftKey && activeEl?.id === "search-input") {
-    if (state.selectedProject) {
+  if (e.key === "Tab") {
+    const isSearchInput = activeEl?.id === "search-input" || (!activeEl && !isInsideTextarea);
+    if (isSearchInput && state.selectedProject) {
       e.preventDefault();
-      actions.focusNote?.();
+      if (e.shiftKey) {
+        actions.focusNote?.();
+      } else {
+        if (actions.focusDescription) {
+          actions.focusDescription();
+        } else {
+          actions.focusNote?.();
+        }
+      }
       return;
     }
   }

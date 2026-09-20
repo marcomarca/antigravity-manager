@@ -77,6 +77,9 @@ export function createProjectRowElement(
 
   row.addEventListener("click", () => {
     onSelect();
+  });
+
+  row.addEventListener("dblclick", () => {
     onOpen();
   });
 

@@ -187,4 +187,92 @@ describe("Key Navigation Architecture", () => {
     expect(newProjectOpened).toBe(true);
     expect(event.defaultPrevented).toBe(true);
   });
+
+  it("focuses description on Tab from search-input when focusDescription is provided", () => {
+    let descFocused = false;
+    actions.focusDescription = () => {
+      descFocused = true;
+    };
+
+    (globalThis as any).document = {
+      activeElement: { id: "search-input" }
+    };
+
+    const event = createMockEvent("Tab");
+    handleKeyNavigation(event, actions);
+
+    expect(descFocused).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("cycles back to search on Tab from project-note-input", () => {
+    const mockTextarea = { tagName: "TEXTAREA", id: "project-note-input" };
+    (globalThis as any).document = {
+      activeElement: mockTextarea
+    };
+
+    const event = createMockEvent("Tab", { target: mockTextarea });
+    handleKeyNavigation(event, actions);
+
+    expect(searchFocused).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("navigates to description on Shift+Tab from project-note-input", () => {
+    let descFocused = false;
+    actions.focusDescription = () => {
+      descFocused = true;
+    };
+
+    const mockTextarea = { tagName: "TEXTAREA", id: "project-note-input" };
+    (globalThis as any).document = {
+      activeElement: mockTextarea
+    };
+
+    const event = createMockEvent("Tab", { shiftKey: true, target: mockTextarea });
+    handleKeyNavigation(event, actions);
+
+    expect(descFocused).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("navigates to note on Tab from btn-edit-desc", () => {
+    const mockButton = { tagName: "BUTTON", id: "btn-edit-desc" };
+    (globalThis as any).document = {
+      activeElement: mockButton
+    };
+
+    const event = createMockEvent("Tab", { target: mockButton });
+    handleKeyNavigation(event, actions);
+
+    expect(noteFocused).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("navigates to search on Shift+Tab from btn-edit-desc", () => {
+    const mockButton = { tagName: "BUTTON", id: "btn-edit-desc" };
+    (globalThis as any).document = {
+      activeElement: mockButton
+    };
+
+    const event = createMockEvent("Tab", { shiftKey: true, target: mockButton });
+    handleKeyNavigation(event, actions);
+
+    expect(searchFocused).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("allows native Enter on buttons without launching project", () => {
+    const mockButton = { tagName: "BUTTON", id: "btn-edit-desc" };
+    (globalThis as any).document = {
+      activeElement: mockButton
+    };
+
+    const event = createMockEvent("Enter", { target: mockButton });
+    handleKeyNavigation(event, actions);
+
+    expect(opened).toBe(false);
+    expect(event.defaultPrevented).toBe(false);
+  });
 });
+

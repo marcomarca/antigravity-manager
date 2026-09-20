@@ -163,6 +163,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       closeOrHide: async () => {
         await window.app.window.hide();
       },
+      focusDescription: () => {
+        if (descEditWrap && !descEditWrap.classList.contains("hidden")) {
+          descInput.focus();
+          descInput.select();
+        } else if (btnEditDesc && !btnEditDesc.disabled) {
+          btnEditDesc.focus();
+        } else if (!noteTextarea.disabled) {
+          noteTextarea.focus();
+          noteTextarea.setSelectionRange(noteTextarea.value.length, noteTextarea.value.length);
+        }
+      },
       focusNote: () => {
         if (!noteTextarea.disabled) {
           noteTextarea.focus();
