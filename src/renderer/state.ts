@@ -17,6 +17,7 @@ export interface AppState {
   searchQuery: string;
   sortMode: SortMode;
   selectedProject: Project | null;
+  selectedTags: string[];
   activeModal: ModalType;
   collisionContext: CollisionContext | null;
   config: Config | null;
@@ -30,6 +31,7 @@ class StateStore {
     searchQuery: "",
     sortMode: "recent",
     selectedProject: null,
+    selectedTags: [],
     activeModal: "none",
     collisionContext: null,
     config: null

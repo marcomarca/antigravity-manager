@@ -147,17 +147,30 @@ export function rankProject(project: Project, query: string): number {
 export function filterAndRankProjects(
   projects: Project[],
   rawQuery: string,
-  sortMode: SortMode = "recent"
+  sortMode: SortMode = "recent",
+  activeTags?: string[]
 ): Project[] {
+  let candidates = projects;
+
+  // Filter by active tags (OR logic: match any of the selected tags)
+  if (activeTags && activeTags.length > 0) {
+    const normalizedActiveTags = activeTags.map((t) => t.toLowerCase().trim().replace(/^#/, ""));
+    candidates = candidates.filter((proj) => {
+      if (!proj.tags || proj.tags.length === 0) return false;
+      const projTags = proj.tags.map((t) => t.toLowerCase());
+      return normalizedActiveTags.some((tag) => projTags.includes(tag));
+    });
+  }
+
   const query = normalizeQuery(rawQuery);
 
   if (!query) {
-    return [...projects].sort((a, b) => sortProjectsByMode(a, b, sortMode));
+    return [...candidates].sort((a, b) => sortProjectsByMode(a, b, sortMode));
   }
 
   const scored: Array<{ project: Project; score: number }> = [];
 
-  for (const proj of projects) {
+  for (const proj of candidates) {
     const score = rankProject(proj, query);
     if (score >= 0) {
       scored.push({ project: proj, score });
@@ -172,4 +185,31 @@ export function filterAndRankProjects(
   });
 
   return scored.map((item) => item.project);
+}
+
+export function getUniqueTagsWithCounts(
+  projects: Project[]
+): Array<{ tag: string; count: number }> {
+  const counts = new Map<string, number>();
+
+  for (const proj of projects) {
+    if (proj.tags && Array.isArray(proj.tags)) {
+      for (const tag of proj.tags) {
+        const normalized = tag.toLowerCase().trim().replace(/^#/, "");
+        if (normalized) {
+          counts.set(normalized, (counts.get(normalized) || 0) + 1);
+        }
+      }
+    }
+  }
+
+  const result: Array<{ tag: string; count: number }> = [];
+  for (const [tag, count] of counts.entries()) {
+    result.push({ tag, count });
+  }
+
+  // Sort alphabetically by tag
+  result.sort((a, b) => a.tag.localeCompare(b.tag, undefined, { sensitivity: "base" }));
+
+  return result;
 }

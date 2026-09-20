@@ -29,7 +29,7 @@ export function createProjectRowElement(
   query: string,
   onSelect: () => void,
   onOpen: () => void,
-  onTogglePin?: () => void,
+  onContextMenu?: (project: Project, e: MouseEvent) => void,
   onTagClick?: (tag: string) => void
 ): HTMLElement {
   const row = document.createElement("div");
@@ -74,7 +74,6 @@ export function createProjectRowElement(
   row.innerHTML = `
     <div class="project-row-top">
       <div class="project-name-group">
-        <button class="btn-row-pin ${project.pinned ? "pinned" : ""}" title="${project.pinned ? "Unpin project" : "Pin project to top"}" type="button">📌</button>
         <span class="project-icon">${icon}</span>
         <span class="project-name">${highlightMatch(project.name, query)}</span>
       </div>
@@ -85,15 +84,6 @@ export function createProjectRowElement(
     <div class="project-row-path">${highlightMatch(project.path, query)}</div>
     ${snippetHtml}
   `;
-
-  // Pin button click
-  const btnPin = row.querySelector(".btn-row-pin");
-  if (btnPin) {
-    btnPin.addEventListener("click", (e) => {
-      e.stopPropagation();
-      onTogglePin?.();
-    });
-  }
 
   // Tag badges click to filter
   const tagEls = row.querySelectorAll(".badge-tag");
@@ -111,6 +101,12 @@ export function createProjectRowElement(
 
   row.addEventListener("dblclick", () => {
     onOpen();
+  });
+
+  row.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    onSelect();
+    onContextMenu?.(project, e);
   });
 
   return row;

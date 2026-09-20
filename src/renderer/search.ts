@@ -9,6 +9,8 @@ export interface KeyNavigationActions {
   closeOrHide: () => void;
   openFolder?: () => void;
   copyPath?: () => void;
+  togglePin?: () => void;
+  openContextMenu?: () => void;
   focusDescription?: () => void;
   focusNote?: () => void;
   focusSearch?: () => void;
@@ -38,7 +40,7 @@ export function matchesShortcut(e: KeyboardEvent, shortcutStr?: string): boolean
 export function handleSearchInput(query: string, sortModeOverride?: SortMode): void {
   const state = store.getState();
   const mode = sortModeOverride || state.sortMode;
-  const filtered = filterAndRankProjects(state.projects, query, mode);
+  const filtered = filterAndRankProjects(state.projects, query, mode, state.selectedTags);
 
   store.setState({
     searchQuery: query,
@@ -50,7 +52,7 @@ export function handleSearchInput(query: string, sortModeOverride?: SortMode): v
 
 export function handleSortChange(sortMode: SortMode): void {
   const state = store.getState();
-  const filtered = filterAndRankProjects(state.projects, state.searchQuery, sortMode);
+  const filtered = filterAndRankProjects(state.projects, state.searchQuery, sortMode, state.selectedTags);
 
   store.setState({
     sortMode,
@@ -61,6 +63,38 @@ export function handleSortChange(sortMode: SortMode): void {
   if (typeof window !== "undefined" && window.app?.settings?.update) {
     window.app.settings.update({ defaultSortMode: sortMode }).catch(() => {});
   }
+}
+
+export function handleTagToggle(tag: string): void {
+  const state = store.getState();
+  const normalizedTag = tag.toLowerCase().trim().replace(/^#/, "");
+  const currentTags = state.selectedTags || [];
+
+  let nextTags: string[];
+  if (currentTags.includes(normalizedTag)) {
+    nextTags = currentTags.filter((t) => t !== normalizedTag);
+  } else {
+    nextTags = [...currentTags, normalizedTag];
+  }
+
+  const filtered = filterAndRankProjects(state.projects, state.searchQuery, state.sortMode, nextTags);
+
+  store.setState({
+    selectedTags: nextTags,
+    filteredProjects: filtered,
+    selectedIndex: 0
+  });
+}
+
+export function handleClearTags(): void {
+  const state = store.getState();
+  const filtered = filterAndRankProjects(state.projects, state.searchQuery, state.sortMode, []);
+
+  store.setState({
+    selectedTags: [],
+    filteredProjects: filtered,
+    selectedIndex: 0
+  });
 }
 
 export function handleKeyNavigation(
@@ -94,6 +128,31 @@ export function handleKeyNavigation(
   if ((e.ctrlKey || e.metaKey) && (e.key === "e" || e.key === "E")) {
     e.preventDefault();
     actions.focusNote?.();
+    return;
+  }
+
+  // Context Menu Shortcut (Shift+F10, physical ContextMenu key, or Alt+M)
+  const isContextMenuKey =
+    (e.shiftKey && e.key === "F10") ||
+    e.key === "ContextMenu" ||
+    e.key === "Apps" ||
+    (e.altKey && (e.key === "m" || e.key === "M"));
+
+  if (isContextMenuKey) {
+    e.preventDefault();
+    if (state.selectedProject) {
+      actions.openContextMenu?.();
+    }
+    return;
+  }
+
+  // Quick Pin Shortcut
+  const pinShortcut = state.config?.pinShortcut || "Ctrl+Shift+P";
+  if (matchesShortcut(e, pinShortcut)) {
+    e.preventDefault();
+    if (state.selectedProject) {
+      actions.togglePin?.();
+    }
     return;
   }
 

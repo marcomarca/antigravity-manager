@@ -301,6 +301,58 @@ describe("Key Navigation Architecture", () => {
     expect(pathCopied).toBe(true);
     expect(event.defaultPrevented).toBe(true);
   });
+
+  it("triggers togglePin on Ctrl+Shift+P shortcut", () => {
+    let pinToggled = false;
+    actions.togglePin = () => {
+      pinToggled = true;
+    };
+
+    const event = createMockEvent("p", { ctrlKey: true, shiftKey: true });
+    handleKeyNavigation(event, actions);
+
+    expect(pinToggled).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("triggers openContextMenu on Shift+F10 shortcut", () => {
+    let menuOpened = false;
+    actions.openContextMenu = () => {
+      menuOpened = true;
+    };
+
+    const event = createMockEvent("F10", { shiftKey: true });
+    handleKeyNavigation(event, actions);
+
+    expect(menuOpened).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("triggers openContextMenu on ContextMenu physical key", () => {
+    let menuOpened = false;
+    actions.openContextMenu = () => {
+      menuOpened = true;
+    };
+
+    const event = createMockEvent("ContextMenu");
+    handleKeyNavigation(event, actions);
+
+    expect(menuOpened).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("triggers openContextMenu on Alt+M shortcut", () => {
+    let menuOpened = false;
+    actions.openContextMenu = () => {
+      menuOpened = true;
+    };
+
+    const event = createMockEvent("m", { altKey: true });
+    handleKeyNavigation(event, actions);
+
+    expect(menuOpened).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
 });
 
 

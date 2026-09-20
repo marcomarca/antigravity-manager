@@ -1,5 +1,6 @@
 import { store } from "./state";
-import { handleKeyNavigation, handleSearchInput, handleSortChange } from "./search";
+import { handleClearTags, handleKeyNavigation, handleSearchInput, handleSortChange, handleTagToggle } from "./search";
+import { getUniqueTagsWithCounts } from "../domain/search-ranker";
 import { setupProjectList } from "./components/launcher";
 import { setupProjectDetails } from "./components/note-editor";
 import { setupNewProjectModal } from "./components/new-project-modal";
@@ -35,6 +36,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   const projectsList = document.getElementById("projects-list") as HTMLElement;
   const emptyState = document.getElementById("empty-state") as HTMLElement;
 
+  // Tag filter elements
+  const btnTagFilter = document.getElementById("btn-tag-filter") as HTMLButtonElement;
+  const tagFilterBadge = document.getElementById("tag-filter-badge") as HTMLElement;
+  const tagsFilterMenu = document.getElementById("tags-filter-menu") as HTMLElement;
+  const tagsFilterList = document.getElementById("tags-filter-list") as HTMLElement;
+  const btnClearTagsMenu = document.getElementById("btn-clear-tags-menu") as HTMLButtonElement;
+
+  // Active tags bar elements
+  const activeTagsBar = document.getElementById("active-tags-bar") as HTMLElement;
+  const activeTagsChips = document.getElementById("active-tags-chips") as HTMLElement;
+  const btnClearAllTags = document.getElementById("btn-clear-all-tags") as HTMLButtonElement;
+
+  // Custom Context Menu elements
+  const projectContextMenu = document.getElementById("project-context-menu") as HTMLElement;
+  const ctxItemPin = document.getElementById("ctx-item-pin") as HTMLButtonElement;
+  const ctxPinIcon = document.getElementById("ctx-pin-icon") as HTMLElement;
+  const ctxPinLabel = document.getElementById("ctx-pin-label") as HTMLElement;
+  const ctxPinShortcut = document.getElementById("ctx-pin-shortcut") as HTMLElement;
+  const ctxItemExplorer = document.getElementById("ctx-item-explorer") as HTMLButtonElement;
+  const ctxFolderShortcut = document.getElementById("ctx-folder-shortcut") as HTMLElement;
+  const ctxItemCopy = document.getElementById("ctx-item-copy") as HTMLButtonElement;
+  const ctxCopyShortcut = document.getElementById("ctx-copy-shortcut") as HTMLElement;
+
   // Project Details Sidebar elements
   const descView = document.getElementById("project-desc-view") as HTMLElement;
   const descEditWrap = document.getElementById("project-desc-edit-wrap") as HTMLElement;
@@ -69,6 +93,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const modalSettings = document.getElementById("modal-settings") as HTMLElement;
   const settingsProjectsRoot = document.getElementById("settings-projects-root") as HTMLInputElement;
   const settingsHotkey = document.getElementById("settings-hotkey") as HTMLInputElement;
+  const settingsPinShortcut = document.getElementById("settings-pin-shortcut") as HTMLInputElement;
+  const settingsOpenFolderShortcut = document.getElementById("settings-open-folder-shortcut") as HTMLInputElement;
+  const settingsCopyPathShortcut = document.getElementById("settings-copy-path-shortcut") as HTMLInputElement;
   const settingsChatgptMode = document.getElementById("settings-chatgpt-mode") as HTMLSelectElement;
   const settingsCustomPrompt = document.getElementById("settings-custom-prompt") as HTMLTextAreaElement;
   const btnResetPrompt = document.getElementById("btn-reset-prompt") as HTMLButtonElement;
@@ -82,8 +109,32 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnCancelSettings = document.getElementById("btn-cancel-settings") as HTMLButtonElement;
   const btnCloseSettings = document.getElementById("btn-close-settings") as HTMLElement;
 
-  // 2. Setup Subcomponents
-  // Quick actions & pinning
+  // 2. Setup Actions & Handlers
+  let contextMenuTarget: Project | null = null;
+
+  const closeContextMenu = () => {
+    projectContextMenu.classList.add("hidden");
+    contextMenuTarget = null;
+  };
+
+  const openContextMenu = (proj: Project, x: number, y: number) => {
+    contextMenuTarget = proj;
+    const config = store.getState().config;
+
+    ctxPinLabel.textContent = proj.pinned ? "Desfijar proyecto" : "Fijar proyecto";
+    ctxPinIcon.textContent = proj.pinned ? "📌" : "📌";
+    ctxPinShortcut.textContent = config?.pinShortcut || "Ctrl+Shift+P";
+    ctxFolderShortcut.textContent = config?.openFolderShortcut || "Ctrl+Shift+S";
+    ctxCopyShortcut.textContent = config?.copyPathShortcut || "Ctrl+Shift+C";
+
+    // Constrain position within window boundaries
+    const maxX = window.innerWidth - 230;
+    const maxY = window.innerHeight - 140;
+    projectContextMenu.style.left = `${Math.max(10, Math.min(x, maxX))}px`;
+    projectContextMenu.style.top = `${Math.max(10, Math.min(y, maxY))}px`;
+    projectContextMenu.classList.remove("hidden");
+  };
+
   const togglePin = async (proj?: Project): Promise<void> => {
     const target = proj || store.getState().selectedProject;
     if (!target) return;
@@ -98,7 +149,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       store.setState({ projects: updatedProjects });
       handleSearchInput(searchQuery, sortMode);
 
-      showToast(newPinned ? "Project pinned to top" : "Project unpinned");
+      showToast(newPinned ? "Proyecto fijado arriba" : "Proyecto desfijado");
     } catch (err: any) {
       showToast(err.message || "Failed to update pinned status");
     }
@@ -110,7 +161,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       await window.app.projects.openFolder(target.path);
-      showToast("Opened folder in Explorer");
+      showToast("Carpeta abierta en el Explorador");
     } catch (err: any) {
       showToast(err.message || "Failed to open folder");
     }
@@ -122,20 +173,161 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       await window.app.projects.copyPath(target.path);
-      showToast("Path copied to clipboard");
+      showToast("Ruta copiada al portapapeles");
     } catch (err: any) {
       showToast(err.message || "Failed to copy path");
     }
   };
 
-  const filterByTag = (tag: string): void => {
-    searchInput.value = `#${tag}`;
-    btnClearSearch.classList.remove("hidden");
-    handleSearchInput(searchInput.value);
-    searchInput.focus();
+  // Context menu item click handlers
+  ctxItemPin.addEventListener("click", () => {
+    const target = contextMenuTarget;
+    closeContextMenu();
+    if (target) togglePin(target);
+  });
+
+  ctxItemExplorer.addEventListener("click", () => {
+    const target = contextMenuTarget;
+    closeContextMenu();
+    if (target) openFolder(target);
+  });
+
+  ctxItemCopy.addEventListener("click", () => {
+    const target = contextMenuTarget;
+    closeContextMenu();
+    if (target) copyPath(target);
+  });
+
+  // Global dismiss context menu on click outside
+  document.addEventListener("click", (e) => {
+    if (!projectContextMenu.classList.contains("hidden")) {
+      const clickedInside = projectContextMenu.contains(e.target as Node);
+      if (!clickedInside) {
+        closeContextMenu();
+      }
+    }
+    if (!tagsFilterMenu.classList.contains("hidden")) {
+      const clickedTagFilter =
+        btnTagFilter.contains(e.target as Node) || tagsFilterMenu.contains(e.target as Node);
+      if (!clickedTagFilter) {
+        tagsFilterMenu.classList.add("hidden");
+      }
+    }
+  });
+
+  // Tag Filter UI rendering
+  const renderTagsFilterMenu = () => {
+    const { projects, selectedTags } = store.getState();
+    const uniqueTags = getUniqueTagsWithCounts(projects);
+
+    tagsFilterList.innerHTML = "";
+
+    if (uniqueTags.length === 0) {
+      tagsFilterList.innerHTML = `<div class="tags-filter-empty">No hay etiquetas creadas aún</div>`;
+      btnClearTagsMenu.classList.add("hidden");
+      return;
+    }
+
+    btnClearTagsMenu.classList.toggle("hidden", selectedTags.length === 0);
+
+    uniqueTags.forEach(({ tag, count }) => {
+      const isSelected = selectedTags.includes(tag.toLowerCase());
+      const item = document.createElement("div");
+      item.className = `tags-filter-item ${isSelected ? "selected" : ""}`;
+      item.setAttribute("role", "menuitemcheckbox");
+      item.setAttribute("aria-checked", isSelected ? "true" : "false");
+
+      item.innerHTML = `
+        <input type="checkbox" class="tags-filter-checkbox" ${isSelected ? "checked" : ""} />
+        <span class="tags-filter-item-name">#${tag}</span>
+        <span class="tags-filter-item-count">${count}</span>
+      `;
+
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleTagToggle(tag);
+        renderTagsFilterMenu();
+      });
+
+      tagsFilterList.appendChild(item);
+    });
   };
 
-  setupProjectList(projectsList, emptyState, openProject, togglePin, filterByTag);
+  const renderActiveTagsBar = () => {
+    const { selectedTags } = store.getState();
+
+    if (selectedTags.length > 0) {
+      tagFilterBadge.textContent = String(selectedTags.length);
+      tagFilterBadge.classList.remove("hidden");
+      btnTagFilter.classList.add("active");
+
+      activeTagsBar.classList.remove("hidden");
+      activeTagsChips.innerHTML = "";
+
+      selectedTags.forEach((tag) => {
+        const chip = document.createElement("span");
+        chip.className = "active-tag-chip";
+        chip.title = `Eliminar filtro #${tag}`;
+        chip.innerHTML = `<span>#${tag}</span><span class="active-tag-remove">✕</span>`;
+
+        chip.addEventListener("click", () => {
+          handleTagToggle(tag);
+        });
+
+        activeTagsChips.appendChild(chip);
+      });
+    } else {
+      tagFilterBadge.classList.add("hidden");
+      btnTagFilter.classList.remove("active");
+      activeTagsBar.classList.add("hidden");
+      activeTagsChips.innerHTML = "";
+    }
+  };
+
+  btnTagFilter.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isHidden = tagsFilterMenu.classList.contains("hidden");
+    if (isHidden) {
+      renderTagsFilterMenu();
+      tagsFilterMenu.classList.remove("hidden");
+    } else {
+      tagsFilterMenu.classList.add("hidden");
+    }
+  });
+
+  btnClearTagsMenu.addEventListener("click", (e) => {
+    e.stopPropagation();
+    handleClearTags();
+    renderTagsFilterMenu();
+  });
+
+  btnClearAllTags.addEventListener("click", () => {
+    handleClearTags();
+  });
+
+  // Subscribe to tag updates
+  let prevTags: string[] = [];
+  store.subscribe(() => {
+    const { selectedTags } = store.getState();
+    if (selectedTags !== prevTags) {
+      prevTags = selectedTags;
+      renderActiveTagsBar();
+    }
+  });
+
+  // 3. Setup Project List and Details
+  setupProjectList(
+    projectsList,
+    emptyState,
+    openProject,
+    (proj, e) => {
+      openContextMenu(proj, e.clientX, e.clientY);
+    },
+    (tag) => {
+      handleTagToggle(tag);
+    }
+  );
+
   setupProjectDetails({
     descView,
     descEditWrap,
@@ -147,17 +339,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     tagsList: document.getElementById("project-tags-list") as HTMLElement,
     inputNewTag: document.getElementById("input-new-tag") as HTMLInputElement,
     tagSavedBadge: document.getElementById("tag-save-indicator") as HTMLElement,
-    btnTogglePin: document.getElementById("btn-toggle-pin") as HTMLButtonElement,
-    pinIcon: document.getElementById("pin-icon") as HTMLElement,
-    pinLabel: document.getElementById("pin-label") as HTMLElement,
-    btnOpenFolder: document.getElementById("btn-sidebar-open-folder") as HTMLButtonElement,
-    btnCopyPath: document.getElementById("btn-sidebar-copy-path") as HTMLButtonElement,
     noteTextarea,
     noteSavedBadge,
-    onTogglePin: () => togglePin(),
-    onOpenFolder: () => openFolder(),
-    onCopyPath: () => copyPath(),
-    onTagClick: (tag) => filterByTag(tag)
+    onTagClick: (tag) => handleTagToggle(tag)
   });
   setupMarkdownDropzones(globalDropzone, modalDropzone, showToast);
   setupNewProjectModal(
@@ -174,8 +358,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     modal: modalSettings,
     projectsRootInput: settingsProjectsRoot,
     hotkeyInput: settingsHotkey,
-    openFolderShortcutInput: document.getElementById("settings-open-folder-shortcut") as HTMLInputElement,
-    copyPathShortcutInput: document.getElementById("settings-copy-path-shortcut") as HTMLInputElement,
+    pinShortcutInput: settingsPinShortcut,
+    openFolderShortcutInput: settingsOpenFolderShortcut,
+    copyPathShortcutInput: settingsCopyPathShortcut,
     chatgptModeSelect: settingsChatgptMode,
     customPromptTextarea: settingsCustomPrompt,
     resetPromptBtn: btnResetPrompt,
@@ -215,6 +400,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Global Keyboard Routing
   window.addEventListener("keydown", (e) => {
+    // If context menu is visible, let Escape or arrow keys/enter interact with it
+    if (!projectContextMenu.classList.contains("hidden")) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeContextMenu();
+        return;
+      }
+    }
+
     handleKeyNavigation(e, {
       openSelected: () => {
         const { selectedProject } = store.getState();
@@ -225,6 +419,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       },
       copyPath: () => {
         copyPath();
+      },
+      togglePin: () => {
+        togglePin();
+      },
+      openContextMenu: () => {
+        const { selectedProject } = store.getState();
+        if (!selectedProject) return;
+        const selectedEl = document.querySelector(".project-row.selected") as HTMLElement | null;
+        const rect = selectedEl?.getBoundingClientRect();
+        const x = rect ? rect.right - 220 : 100;
+        const y = rect ? rect.bottom : 100;
+        openContextMenu(selectedProject, x, y);
       },
       openNewProject: () => {
         store.setState({ activeModal: "new_project" });

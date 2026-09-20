@@ -29,7 +29,8 @@ export class ConfigService {
       antigravityExecutable: null,
       chatgptMode: "auto",
       openFolderShortcut: "Ctrl+Shift+S",
-      copyPathShortcut: "Ctrl+Shift+C"
+      copyPathShortcut: "Ctrl+Shift+C",
+      pinShortcut: "Ctrl+Shift+P"
     };
   }
 

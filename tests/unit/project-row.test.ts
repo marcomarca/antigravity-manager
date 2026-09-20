@@ -131,4 +131,51 @@ describe("Project Row Component", () => {
     expect(unselectedRow.className).not.toContain("selected");
     expect((unselectedRow as any).getAttribute("aria-selected")).toBe("false");
   });
+
+  it("calls onSelect and onContextMenu on right click (contextmenu event)", () => {
+    let selectCalled = false;
+    let contextMenuTarget: any = null;
+
+    const row = createProjectRowElement(
+      sampleProject,
+      false,
+      "",
+      () => { selectCalled = true; },
+      () => {},
+      (proj) => { contextMenuTarget = proj; }
+    );
+
+    expect(listeners["contextmenu"]).toBeDefined();
+    const mockEvent = { type: "contextmenu", preventDefault: () => {} };
+    row.dispatchEvent(mockEvent as any);
+
+    expect(selectCalled).toBe(true);
+    expect(contextMenuTarget).toBe(sampleProject);
+  });
+
+  it("does not render inline btn-row-pin button in row markup", () => {
+    const row = createProjectRowElement(
+      sampleProject,
+      false,
+      "",
+      () => {},
+      () => {}
+    );
+
+    expect(row.innerHTML).not.toContain("btn-row-pin");
+  });
+
+  it("renders pinned badge when project is pinned", () => {
+    const pinnedProject = { ...sampleProject, pinned: true };
+    const row = createProjectRowElement(
+      pinnedProject,
+      false,
+      "",
+      () => {},
+      () => {}
+    );
+
+    expect(row.innerHTML).toContain("badge-pinned");
+    expect(row.className).toContain("is-pinned");
+  });
 });

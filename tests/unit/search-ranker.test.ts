@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { filterAndRankProjects, rankProject } from "../../src/domain/search-ranker";
+import { filterAndRankProjects, getUniqueTagsWithCounts, rankProject } from "../../src/domain/search-ranker";
 import type { Project } from "../../src/domain/types";
 
 describe("Search Ranker", () => {
@@ -360,6 +360,35 @@ describe("Search Ranker", () => {
       const res = filterAndRankProjects(taggedProjects, "react");
       expect(res.length).toBe(1);
       expect(res[0]?.name).toBe("Web Portal");
+    });
+
+    it("filters projects by multiple active tags using OR logic", () => {
+      // Multiple tags: matches any project having at least one of the tags
+      const res = filterAndRankProjects(taggedProjects, "", "name_asc", ["security", "payments"]);
+      expect(res.map((p) => p.name)).toEqual(["Auth Service", "Billing Worker"]);
+
+      const resSingle = filterAndRankProjects(taggedProjects, "", "name_asc", ["react"]);
+      expect(resSingle.map((p) => p.name)).toEqual(["Web Portal"]);
+
+      const resNone = filterAndRankProjects(taggedProjects, "", "name_asc", ["nonexistent"]);
+      expect(resNone.length).toBe(0);
+    });
+
+    it("combines active tag filter with text search query", () => {
+      const res = filterAndRankProjects(taggedProjects, "Billing", "recent", ["backend"]);
+      expect(res.length).toBe(1);
+      expect(res[0]?.name).toBe("Billing Worker");
+    });
+
+    it("extracts unique tags with correct project counts sorted alphabetically", () => {
+      const tagCounts = getUniqueTagsWithCounts(taggedProjects);
+      expect(tagCounts).toEqual([
+        { tag: "backend", count: 2 },
+        { tag: "frontend", count: 1 },
+        { tag: "payments", count: 1 },
+        { tag: "react", count: 1 },
+        { tag: "security", count: 1 }
+      ]);
     });
   });
 });

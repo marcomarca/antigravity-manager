@@ -5,6 +5,7 @@ export interface SettingsModalElements {
   modal: HTMLElement;
   projectsRootInput: HTMLInputElement;
   hotkeyInput: HTMLInputElement;
+  pinShortcutInput: HTMLInputElement;
   openFolderShortcutInput: HTMLInputElement;
   copyPathShortcutInput: HTMLInputElement;
   chatgptModeSelect: HTMLSelectElement;
@@ -27,6 +28,7 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
     modal,
     projectsRootInput,
     hotkeyInput,
+    pinShortcutInput,
     openFolderShortcutInput,
     copyPathShortcutInput,
     chatgptModeSelect,
@@ -147,6 +149,7 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
       if (config) {
         projectsRootInput.value = config.projectsRoot || "";
         hotkeyInput.value = config.hotkey || "Ctrl+Alt+Space";
+        pinShortcutInput.value = config.pinShortcut || "Ctrl+Shift+P";
         openFolderShortcutInput.value = config.openFolderShortcut || "Ctrl+Shift+S";
         copyPathShortcutInput.value = config.copyPathShortcut || "Ctrl+Shift+C";
         chatgptModeSelect.value = config.chatgptMode || "auto";
@@ -191,6 +194,7 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
       const updated = await window.app.settings.update({
         projectsRoot: projectsRootInput.value.trim(),
         hotkey: hotkeyInput.value.trim() || "Ctrl+Alt+Space",
+        pinShortcut: pinShortcutInput.value.trim() || "Ctrl+Shift+P",
         openFolderShortcut: openFolderShortcutInput.value.trim() || "Ctrl+Shift+S",
         copyPathShortcut: copyPathShortcutInput.value.trim() || "Ctrl+Shift+C",
         chatgptMode: chatgptModeSelect.value as ChatGPTMode,

@@ -6,7 +6,7 @@ export function setupProjectList(
   container: HTMLElement,
   emptyState: HTMLElement,
   onOpenProject: (proj: Project) => void,
-  onTogglePin?: (proj: Project) => void,
+  onContextMenu?: (proj: Project, e: MouseEvent) => void,
   onTagClick?: (tag: string) => void
 ): void {
   let prevProjects: Project[] = [];
@@ -46,8 +46,8 @@ export function setupProjectList(
           () => {
             onOpenProject(proj);
           },
-          () => {
-            onTogglePin?.(proj);
+          (p, e) => {
+            onContextMenu?.(p, e);
           },
           (tag) => {
             onTagClick?.(tag);

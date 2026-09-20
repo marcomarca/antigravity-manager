@@ -53,6 +53,7 @@ export interface Config {
   defaultSortMode?: SortMode;
   openFolderShortcut?: string;
   copyPathShortcut?: string;
+  pinShortcut?: string;
 }
 
 export type AppErrorCode =

@@ -19,21 +19,11 @@ export interface ProjectDetailsElements {
   inputNewTag?: HTMLInputElement;
   tagSavedBadge?: HTMLElement;
 
-  // Quick Action elements
-  btnTogglePin?: HTMLButtonElement;
-  pinIcon?: HTMLElement;
-  pinLabel?: HTMLElement;
-  btnOpenFolder?: HTMLButtonElement;
-  btnCopyPath?: HTMLButtonElement;
-
   // Notes elements
   noteTextarea: HTMLTextAreaElement;
   noteSavedBadge: HTMLElement;
 
   // Actions / Handlers
-  onTogglePin?: () => void;
-  onOpenFolder?: () => void;
-  onCopyPath?: () => void;
   onTagClick?: (tag: string) => void;
 }
 
@@ -49,15 +39,8 @@ export function setupProjectDetails(elements: ProjectDetailsElements): void {
     tagsList,
     inputNewTag,
     tagSavedBadge,
-    btnTogglePin,
-    pinLabel,
-    btnOpenFolder,
-    btnCopyPath,
     noteTextarea,
     noteSavedBadge,
-    onTogglePin,
-    onOpenFolder,
-    onCopyPath,
     onTagClick
   } = elements;
 
@@ -229,14 +212,6 @@ export function setupProjectDetails(elements: ProjectDetailsElements): void {
     const newPath = selectedProject?.path || null;
 
     // Update Quick Action buttons regardless of path change
-    if (btnTogglePin) {
-      btnTogglePin.disabled = !selectedProject;
-      btnTogglePin.classList.toggle("active", !!selectedProject?.pinned);
-      if (pinLabel) pinLabel.textContent = selectedProject?.pinned ? "Pinned" : "Pin";
-    }
-    if (btnOpenFolder) btnOpenFolder.disabled = !selectedProject;
-    if (btnCopyPath) btnCopyPath.disabled = !selectedProject;
-
     if (newPath !== currentLoadedPath) {
       currentLoadedPath = newPath;
       setDescEditMode(false);
@@ -273,17 +248,6 @@ export function setupProjectDetails(elements: ProjectDetailsElements): void {
       }
     }
   });
-
-  // Quick Action button listeners
-  if (btnTogglePin && onTogglePin) {
-    btnTogglePin.addEventListener("click", onTogglePin);
-  }
-  if (btnOpenFolder && onOpenFolder) {
-    btnOpenFolder.addEventListener("click", onOpenFolder);
-  }
-  if (btnCopyPath && onCopyPath) {
-    btnCopyPath.addEventListener("click", onCopyPath);
-  }
 
   // Tag input listener
   if (inputNewTag) {
