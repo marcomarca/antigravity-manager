@@ -43,39 +43,47 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
   const renderUpdateStatus = (status: { state: string; version?: string; percent?: number; message?: string }) => {
     if (!status) return;
 
+    updateStatusMsg.classList.remove("error", "success", "info");
+
     switch (status.state) {
       case "checking":
         updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.classList.add("info");
         updateStatusMsg.textContent = "Checking for updates...";
         btnCheckUpdates.disabled = true;
         btnInstallUpdate.classList.add("hidden");
         break;
       case "available":
         updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.classList.add("info");
         updateStatusMsg.textContent = `New version v${status.version || ""} found. Downloading...`;
         btnCheckUpdates.disabled = true;
         btnInstallUpdate.classList.add("hidden");
         break;
       case "downloading":
         updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.classList.add("info");
         updateStatusMsg.textContent = `Downloading update: ${status.percent || 0}%`;
         btnCheckUpdates.disabled = true;
         btnInstallUpdate.classList.add("hidden");
         break;
       case "downloaded":
         updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.classList.add("success");
         updateStatusMsg.textContent = `Version v${status.version || ""} is ready to install.`;
         btnInstallUpdate.classList.remove("hidden");
         btnCheckUpdates.disabled = false;
         break;
       case "not-available":
         updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.classList.add("success");
         updateStatusMsg.textContent = "You are on the latest version.";
         btnCheckUpdates.disabled = false;
         btnInstallUpdate.classList.add("hidden");
         break;
       case "error":
         updateStatusMsg.classList.remove("hidden");
+        updateStatusMsg.classList.add("error");
         updateStatusMsg.textContent = status.message || "Failed checking for updates.";
         btnCheckUpdates.disabled = false;
         btnInstallUpdate.classList.add("hidden");
@@ -108,13 +116,16 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
   btnCheckUpdates.addEventListener("click", async () => {
     try {
       btnCheckUpdates.disabled = true;
-      updateStatusMsg.classList.remove("hidden");
+      updateStatusMsg.classList.remove("hidden", "error", "success");
+      updateStatusMsg.classList.add("info");
       updateStatusMsg.textContent = "Checking GitHub Releases...";
       const res = await window.app.updater.checkForUpdates();
       if (!res.success && res.message) {
+        updateStatusMsg.classList.add("error");
         updateStatusMsg.textContent = res.message;
       }
     } catch (err: any) {
+      updateStatusMsg.classList.add("error");
       updateStatusMsg.textContent = err.message || "Failed to check for updates.";
     } finally {
       btnCheckUpdates.disabled = false;

@@ -42,7 +42,13 @@ bun run dev
 ```bash
 bun run package
 ```
-*(Genera el instalador y portable en la carpeta `dist/releases` o `dist`).*
+*(Genera el instalador y portable en la carpeta `release`).*
+
+### 2.6. Publicar Release y Activar Auto-Update
+```bash
+bun run release
+```
+*(Ejecuta chequeo de tipos, pruebas, compila binarios y sube a GitHub Releases todos los archivos requeridos: `latest.yml`, blockmaps, setup y portable para habilitar actualizaciones automáticas).*
 
 ---
 

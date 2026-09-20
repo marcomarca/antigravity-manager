@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "package": "bun run build && electron-builder --win",
+    "release": "bun run scripts/release.ts",
     "check": "bun run typecheck && bun test"
   },
   "dependencies": {

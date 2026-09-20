@@ -18,6 +18,31 @@ export interface UpdateStatus {
   message?: string;
 }
 
+function formatUpdateError(err: any): string {
+  const rawMsg = (err?.message || String(err || "")).trim();
+
+  if (rawMsg.includes("404") || rawMsg.toLowerCase().includes("cannot find latest.yml")) {
+    return "No new releases found on GitHub (current version is up to date).";
+  }
+  if (
+    rawMsg.includes("ENOTFOUND") ||
+    rawMsg.includes("ECONNREFUSED") ||
+    rawMsg.includes("ERR_INTERNET_DISCONNECTED") ||
+    rawMsg.includes("net::ERR")
+  ) {
+    return "Could not connect to GitHub. Please check your internet connection.";
+  }
+  if (rawMsg.includes("403") || rawMsg.toLowerCase().includes("rate limit")) {
+    return "GitHub API rate limit reached. Please try again later.";
+  }
+
+  const firstLine = rawMsg.split("\n")[0].trim();
+  if (firstLine.length > 120) {
+    return firstLine.substring(0, 117) + "...";
+  }
+  return firstLine || "Failed to check for updates.";
+}
+
 export class UpdateService {
   private currentStatus: UpdateStatus = { state: "idle" };
   private listeners: Array<(status: UpdateStatus) => void> = [];
@@ -76,7 +101,8 @@ export class UpdateService {
 
     autoUpdater.on("error", (err: Error) => {
       logger.warn(`[AutoUpdater] Error in auto-updater: ${err.message}`);
-      this.setStatus({ state: "error", message: err.message });
+      const friendlyMsg = formatUpdateError(err);
+      this.setStatus({ state: "error", message: friendlyMsg });
     });
 
     autoUpdater.on("download-progress", (progressObj) => {
@@ -102,8 +128,9 @@ export class UpdateService {
       return { success: true, message: result?.updateInfo?.version };
     } catch (err: any) {
       logger.warn("[AutoUpdater] Manual check error:", err);
-      this.setStatus({ state: "error", message: err.message });
-      return { success: false, message: err.message || "Failed to check for updates." };
+      const friendlyMsg = formatUpdateError(err);
+      this.setStatus({ state: "error", message: friendlyMsg });
+      return { success: false, message: friendlyMsg };
     }
   }
 

@@ -867,8 +867,30 @@ kbd {
 
 .update-status-msg {
   font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  word-break: break-word;
+  max-height: 75px;
+  overflow-y: auto;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.25);
+  border-left: 2px solid var(--border-subtle);
+}
+
+.update-status-msg.info {
   color: var(--text-accent);
-  line-height: 1.3;
+  border-left-color: var(--accent-primary);
+}
+
+.update-status-msg.success {
+  color: #34d399;
+  border-left-color: #10b981;
+}
+
+.update-status-msg.error {
+  color: #f87171;
+  border-left-color: #ef4444;
 }
 
 .modal-actions {
