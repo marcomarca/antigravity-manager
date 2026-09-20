@@ -305,6 +305,58 @@ body.app-body {
   border: 1px solid rgba(236, 72, 153, 0.3);
 }
 
+.badge-pinned {
+  background-color: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.badge-tag {
+  background-color: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  cursor: pointer;
+  text-transform: none;
+  font-weight: 500;
+  transition: all 0.1s ease;
+}
+
+.badge-tag:hover {
+  background-color: rgba(139, 92, 246, 0.3);
+  border-color: #a78bfa;
+  color: #ede9fe;
+}
+
+.btn-row-pin {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  opacity: 0.4;
+  transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease;
+}
+
+.project-row:hover .btn-row-pin,
+.project-row.selected .btn-row-pin,
+.btn-row-pin.pinned {
+  opacity: 1;
+}
+
+.btn-row-pin.pinned {
+  color: #f59e0b;
+}
+
+.btn-row-pin:hover {
+  transform: scale(1.18);
+  color: #fbbf24;
+}
+
 .project-row-path {
   font-size: 11px;
   color: var(--text-muted);
@@ -1126,3 +1178,129 @@ kbd {
   from { transform: translateY(0); }
   to { transform: translateY(-6px); }
 }
+
+/* Sidebar Quick Actions Bar */
+.sidebar-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface);
+}
+
+.btn-sidebar-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-sidebar-action:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-focus);
+}
+
+.btn-sidebar-action.active {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.btn-sidebar-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Tags Section in Sidebar */
+.tags-section {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.project-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+  min-height: 20px;
+}
+
+.tag-empty-placeholder {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(139, 92, 246, 0.14);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #c4b5fd;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 2px 6px;
+  transition: background-color 0.15s ease;
+}
+
+.tag-chip:hover {
+  background-color: rgba(139, 92, 246, 0.25);
+}
+
+.tag-chip-remove {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0 1px;
+  line-height: 1;
+  border-radius: 2px;
+}
+
+.tag-chip-remove:hover {
+  color: #f87171;
+}
+
+.add-tag-wrap {
+  width: 100%;
+}
+
+.input-new-tag {
+  width: 100%;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 11px;
+  padding: 4px 8px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.input-new-tag:focus {
+  border-color: var(--accent-primary);
+}
+
+/* Settings Form Grid Row */
+.form-group-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-group-row .form-group.half {
+  flex: 1;
+}
+

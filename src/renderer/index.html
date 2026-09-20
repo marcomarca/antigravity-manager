@@ -62,8 +62,21 @@
         </div>
       </div>
 
-      <!-- Project Details Sidebar (Definition & Notes) -->
+      <!-- Project Details Sidebar (Definition, Tags & Notes) -->
       <aside class="note-sidebar" id="note-sidebar">
+        <!-- Quick Actions Header -->
+        <div class="sidebar-quick-actions" id="sidebar-quick-actions">
+          <button id="btn-toggle-pin" class="btn-sidebar-action" title="Pin project to top" type="button">
+            <span id="pin-icon">📌</span> <span id="pin-label">Pin</span>
+          </button>
+          <button id="btn-sidebar-open-folder" class="btn-sidebar-action" title="Open Folder in Explorer (Ctrl+Shift+S)" type="button">
+            📂 <span>Explorer</span>
+          </button>
+          <button id="btn-sidebar-copy-path" class="btn-sidebar-action" title="Copy Path (Ctrl+Shift+C)" type="button">
+            📋 <span>Copy Path</span>
+          </button>
+        </div>
+
         <!-- Section 1: Project Definition (Read-only by default, toggleable via pencil) -->
         <section class="details-section definition-section" id="definition-section">
           <div class="details-section-header">
@@ -96,7 +109,21 @@
           </div>
         </section>
 
-        <!-- Section 2: Quick Notes (Always directly editable) -->
+        <!-- Section 2: Tags & Labels -->
+        <section class="details-section tags-section" id="tags-section">
+          <div class="details-section-header">
+            <span class="details-title">Tags</span>
+            <span id="tag-save-indicator" class="details-saved-badge hidden">Saved</span>
+          </div>
+          <div id="project-tags-list" class="project-tags-list">
+            <!-- Dynamically populated tag chips -->
+          </div>
+          <div class="add-tag-wrap">
+            <input id="input-new-tag" class="input-new-tag" type="text" placeholder="+ Add tag (press Enter)..." spellcheck="false" />
+          </div>
+        </section>
+
+        <!-- Section 3: Quick Notes (Always directly editable) -->
         <section class="details-section notes-section" id="notes-section">
           <div class="details-section-header">
             <span class="details-title">Notes & Scratchpad</span>
@@ -231,8 +258,19 @@
           </div>
 
           <div class="form-group">
-            <label for="settings-hotkey">Global Hotkey</label>
+            <label for="settings-hotkey">Global Hotkey (Show/Hide Launcher)</label>
             <input type="text" id="settings-hotkey" class="form-input" placeholder="Ctrl+Alt+Space" />
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group half">
+              <label for="settings-open-folder-shortcut">Open in Explorer Shortcut</label>
+              <input type="text" id="settings-open-folder-shortcut" class="form-input" placeholder="Ctrl+Shift+S" />
+            </div>
+            <div class="form-group half">
+              <label for="settings-copy-path-shortcut">Copy Path Shortcut</label>
+              <input type="text" id="settings-copy-path-shortcut" class="form-input" placeholder="Ctrl+Shift+C" />
+            </div>
           </div>
 
           <div class="form-group">

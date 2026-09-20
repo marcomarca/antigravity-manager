@@ -40,6 +40,15 @@ export class MetadataService {
     }
   }
 
+  private isRecordEmpty(meta: ProjectMetadata): boolean {
+    return (
+      !meta.note &&
+      !meta.description &&
+      !meta.pinned &&
+      (!meta.tags || meta.tags.length === 0)
+    );
+  }
+
   public get(projectPath: string): ProjectMetadata {
     const key = canonicalPathKey(projectPath);
     return this.state.projects[key] || {};
@@ -60,7 +69,7 @@ export class MetadataService {
       existing.note = trimmed;
     }
 
-    if (!existing.note && !existing.description) {
+    if (this.isRecordEmpty(existing)) {
       delete this.state.projects[key];
     } else {
       this.state.projects[key] = existing;
@@ -84,7 +93,60 @@ export class MetadataService {
       existing.description = trimmed;
     }
 
-    if (!existing.note && !existing.description) {
+    if (this.isRecordEmpty(existing)) {
+      delete this.state.projects[key];
+    } else {
+      this.state.projects[key] = existing;
+    }
+
+    await this.save();
+  }
+
+  public getPinned(projectPath: string): boolean {
+    return !!this.get(projectPath).pinned;
+  }
+
+  public async setPinned(projectPath: string, pinned: boolean): Promise<void> {
+    const key = canonicalPathKey(projectPath);
+    const existing = this.state.projects[key] || {};
+
+    if (!pinned) {
+      delete existing.pinned;
+    } else {
+      existing.pinned = true;
+    }
+
+    if (this.isRecordEmpty(existing)) {
+      delete this.state.projects[key];
+    } else {
+      this.state.projects[key] = existing;
+    }
+
+    await this.save();
+  }
+
+  public getTags(projectPath: string): string[] {
+    return this.get(projectPath).tags || [];
+  }
+
+  public async setTags(projectPath: string, tags: string[]): Promise<void> {
+    const key = canonicalPathKey(projectPath);
+    const cleanTags = Array.from(
+      new Set(
+        tags
+          .map((t) => t.trim().toLowerCase().replace(/^#+/, ""))
+          .filter((t) => t.length > 0)
+      )
+    );
+    const existing = this.state.projects[key] || {};
+
+    if (cleanTags.length === 0) {
+      delete existing.tags;
+    } else {
+      existing.tags = cleanTags;
+    }
+
+    if (this.isRecordEmpty(existing)) {
       delete this.state.projects[key];
     } else {
       this.state.projects[key] = existing;

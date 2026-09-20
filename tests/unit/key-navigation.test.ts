@@ -54,7 +54,7 @@ describe("Key Navigation Architecture", () => {
 
   function createMockEvent(
     key: string,
-    options: { ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean; target?: any } = {}
+    options: { ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean; altKey?: boolean; target?: any } = {}
   ): KeyboardEvent & { defaultPrevented: boolean } {
     let prevented = false;
     return {
@@ -62,6 +62,7 @@ describe("Key Navigation Architecture", () => {
       ctrlKey: !!options.ctrlKey,
       metaKey: !!options.metaKey,
       shiftKey: !!options.shiftKey,
+      altKey: !!options.altKey,
       target: options.target || null,
       preventDefault: () => {
         prevented = true;
@@ -274,5 +275,32 @@ describe("Key Navigation Architecture", () => {
     expect(opened).toBe(false);
     expect(event.defaultPrevented).toBe(false);
   });
+
+  it("triggers openFolder on Ctrl+Shift+S shortcut", () => {
+    let folderOpened = false;
+    actions.openFolder = () => {
+      folderOpened = true;
+    };
+
+    const event = createMockEvent("s", { ctrlKey: true, shiftKey: true });
+    handleKeyNavigation(event, actions);
+
+    expect(folderOpened).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("triggers copyPath on Ctrl+Shift+C shortcut", () => {
+    let pathCopied = false;
+    actions.copyPath = () => {
+      pathCopied = true;
+    };
+
+    const event = createMockEvent("c", { ctrlKey: true, shiftKey: true });
+    handleKeyNavigation(event, actions);
+
+    expect(pathCopied).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
 });
+
 

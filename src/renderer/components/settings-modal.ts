@@ -5,6 +5,8 @@ export interface SettingsModalElements {
   modal: HTMLElement;
   projectsRootInput: HTMLInputElement;
   hotkeyInput: HTMLInputElement;
+  openFolderShortcutInput: HTMLInputElement;
+  copyPathShortcutInput: HTMLInputElement;
   chatgptModeSelect: HTMLSelectElement;
   customPromptTextarea: HTMLTextAreaElement;
   resetPromptBtn: HTMLButtonElement;
@@ -25,6 +27,8 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
     modal,
     projectsRootInput,
     hotkeyInput,
+    openFolderShortcutInput,
+    copyPathShortcutInput,
     chatgptModeSelect,
     customPromptTextarea,
     resetPromptBtn,
@@ -143,6 +147,8 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
       if (config) {
         projectsRootInput.value = config.projectsRoot || "";
         hotkeyInput.value = config.hotkey || "Ctrl+Alt+Space";
+        openFolderShortcutInput.value = config.openFolderShortcut || "Ctrl+Shift+S";
+        copyPathShortcutInput.value = config.copyPathShortcut || "Ctrl+Shift+C";
         chatgptModeSelect.value = config.chatgptMode || "auto";
         customPromptTextarea.value = config.customPlanningPrompt || "";
         antigravityExeInput.value = config.antigravityExecutable || "";
@@ -185,6 +191,8 @@ export function setupSettingsModal(elements: SettingsModalElements): void {
       const updated = await window.app.settings.update({
         projectsRoot: projectsRootInput.value.trim(),
         hotkey: hotkeyInput.value.trim() || "Ctrl+Alt+Space",
+        openFolderShortcut: openFolderShortcutInput.value.trim() || "Ctrl+Shift+S",
+        copyPathShortcut: copyPathShortcutInput.value.trim() || "Ctrl+Shift+C",
         chatgptMode: chatgptModeSelect.value as ChatGPTMode,
         customPlanningPrompt: promptVal.length > 0 ? promptVal : undefined,
         antigravityExecutable: antigravityExeInput.value.trim() || null,

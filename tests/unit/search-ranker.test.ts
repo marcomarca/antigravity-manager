@@ -258,4 +258,108 @@ describe("Search Ranker", () => {
       ]);
     });
   });
+
+  describe("Pinned Projects", () => {
+    const mixedProjects: Project[] = [
+      {
+        name: "Project Z",
+        path: "C:\\Projects\\Project Z",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        pinned: true
+      },
+      {
+        name: "Project A",
+        path: "C:\\Projects\\Project A",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        pinned: false
+      },
+      {
+        name: "Project Y",
+        path: "C:\\Projects\\Project Y",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        pinned: true
+      },
+      {
+        name: "Project B",
+        path: "C:\\Projects\\Project B",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        pinned: false
+      }
+    ];
+
+    it("places all pinned projects before unpinned projects in name_asc sort", () => {
+      const sorted = filterAndRankProjects(mixedProjects, "", "name_asc");
+      expect(sorted.map((p) => p.name)).toEqual([
+        "Project Y", // pinned, alphabetical
+        "Project Z", // pinned, alphabetical
+        "Project A", // unpinned, alphabetical
+        "Project B"  // unpinned, alphabetical
+      ]);
+    });
+
+    it("prioritizes pinned projects during search matches", () => {
+      const searchRes = filterAndRankProjects(mixedProjects, "Project", "name_asc");
+      // All 4 match prefix 'Project', pinned should appear first
+      expect(searchRes.map((p) => p.name)).toEqual([
+        "Project Y",
+        "Project Z",
+        "Project A",
+        "Project B"
+      ]);
+    });
+  });
+
+  describe("Tags & Filtering", () => {
+    const taggedProjects: Project[] = [
+      {
+        name: "Auth Service",
+        path: "C:\\Projects\\Auth Service",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        tags: ["backend", "security"]
+      },
+      {
+        name: "Web Portal",
+        path: "C:\\Projects\\Web Portal",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        tags: ["frontend", "react"]
+      },
+      {
+        name: "Billing Worker",
+        path: "C:\\Projects\\Billing Worker",
+        type: "folder",
+        exists: true,
+        source: { antigravityRecent: false, projectsRoot: true },
+        tags: ["backend", "payments"]
+      }
+    ];
+
+    it("filters strictly by tag when query starts with '#'", () => {
+      const res = filterAndRankProjects(taggedProjects, "#backend");
+      expect(res.map((p) => p.name)).toEqual(["Auth Service", "Billing Worker"]);
+
+      const resSecurity = filterAndRankProjects(taggedProjects, "#security");
+      expect(resSecurity.map((p) => p.name)).toEqual(["Auth Service"]);
+
+      const resNone = filterAndRankProjects(taggedProjects, "#missing");
+      expect(resNone.length).toBe(0);
+    });
+
+    it("matches projects when tag contains search term", () => {
+      const res = filterAndRankProjects(taggedProjects, "react");
+      expect(res.length).toBe(1);
+      expect(res[0]?.name).toBe("Web Portal");
+    });
+  });
 });

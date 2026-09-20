@@ -28,10 +28,12 @@ export function createProjectRowElement(
   isSelected: boolean,
   query: string,
   onSelect: () => void,
-  onOpen: () => void
+  onOpen: () => void,
+  onTogglePin?: () => void,
+  onTagClick?: (tag: string) => void
 ): HTMLElement {
   const row = document.createElement("div");
-  row.className = `project-row ${isSelected ? "selected" : ""}`;
+  row.className = `project-row ${isSelected ? "selected" : ""} ${project.pinned ? "is-pinned" : ""}`;
   row.setAttribute("role", "option");
   row.setAttribute("aria-selected", isSelected ? "true" : "false");
 
@@ -39,6 +41,9 @@ export function createProjectRowElement(
   const icon = isWorkspace ? "📦" : "📁";
 
   let badgesHtml = "";
+  if (project.pinned) {
+    badgesHtml += `<span class="badge badge-pinned" title="Pinned to top">📌 Pinned</span>`;
+  }
   if (project.source.antigravityRecent) {
     badgesHtml += `<span class="badge badge-recent">Recent</span>`;
   }
@@ -47,6 +52,11 @@ export function createProjectRowElement(
   }
   if (isWorkspace) {
     badgesHtml += `<span class="badge badge-workspace">Workspace</span>`;
+  }
+  if (project.tags && project.tags.length > 0) {
+    for (const tag of project.tags) {
+      badgesHtml += `<span class="badge badge-tag" data-tag="${escapeHtml(tag)}" title="Filter by #${escapeHtml(tag)}">#${highlightMatch(tag, query)}</span>`;
+    }
   }
 
   let snippetHtml = "";
@@ -64,6 +74,7 @@ export function createProjectRowElement(
   row.innerHTML = `
     <div class="project-row-top">
       <div class="project-name-group">
+        <button class="btn-row-pin ${project.pinned ? "pinned" : ""}" title="${project.pinned ? "Unpin project" : "Pin project to top"}" type="button">📌</button>
         <span class="project-icon">${icon}</span>
         <span class="project-name">${highlightMatch(project.name, query)}</span>
       </div>
@@ -74,6 +85,25 @@ export function createProjectRowElement(
     <div class="project-row-path">${highlightMatch(project.path, query)}</div>
     ${snippetHtml}
   `;
+
+  // Pin button click
+  const btnPin = row.querySelector(".btn-row-pin");
+  if (btnPin) {
+    btnPin.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onTogglePin?.();
+    });
+  }
+
+  // Tag badges click to filter
+  const tagEls = row.querySelectorAll(".badge-tag");
+  tagEls.forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const tag = el.getAttribute("data-tag");
+      if (tag) onTagClick?.(tag);
+    });
+  });
 
   row.addEventListener("click", () => {
     onSelect();

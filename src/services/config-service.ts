@@ -27,7 +27,9 @@ export class ConfigService {
       hotkey: "Ctrl+Alt+Space",
       launchAtStartup: true,
       antigravityExecutable: null,
-      chatgptMode: "auto"
+      chatgptMode: "auto",
+      openFolderShortcut: "Ctrl+Shift+S",
+      copyPathShortcut: "Ctrl+Shift+C"
     };
   }
 

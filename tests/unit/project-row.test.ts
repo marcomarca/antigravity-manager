@@ -24,7 +24,8 @@ describe("Project Row Component", () => {
     (globalThis as any).document = {
       createElement: (tag: string) => {
         const attrs: Record<string, string> = {};
-        return {
+        const elementListeners: Record<string, Function[]> = {};
+        const el = {
           tagName: tag.toUpperCase(),
           className: "",
           innerHTML: "",
@@ -35,14 +36,31 @@ describe("Project Row Component", () => {
           addEventListener: (event: string, handler: Function) => {
             if (!listeners[event]) listeners[event] = [];
             listeners[event].push(handler);
+            if (!elementListeners[event]) elementListeners[event] = [];
+            elementListeners[event].push(handler);
           },
           dispatchEvent: (event: { type: string }) => {
-            const handlers = listeners[event.type] || [];
+            const handlers = elementListeners[event.type] || listeners[event.type] || [];
             for (const handler of handlers) {
               handler(event);
             }
+          },
+          querySelector: (selector: string) => {
+            if (selector.includes("btn-row-pin")) {
+              return {
+                addEventListener: (event: string, handler: Function) => {
+                  if (!listeners["pin:" + event]) listeners["pin:" + event] = [];
+                  listeners["pin:" + event]?.push(handler);
+                }
+              };
+            }
+            return null;
+          },
+          querySelectorAll: (selector: string) => {
+            return [];
           }
         };
+        return el;
       }
     };
   });

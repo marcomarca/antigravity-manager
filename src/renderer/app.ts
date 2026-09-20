@@ -83,7 +83,59 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnCloseSettings = document.getElementById("btn-close-settings") as HTMLElement;
 
   // 2. Setup Subcomponents
-  setupProjectList(projectsList, emptyState, openProject);
+  // Quick actions & pinning
+  const togglePin = async (proj?: Project): Promise<void> => {
+    const target = proj || store.getState().selectedProject;
+    if (!target) return;
+
+    try {
+      const newPinned = !target.pinned;
+      await window.app.projects.setPinned(target.path, newPinned);
+      target.pinned = newPinned;
+
+      const { projects, searchQuery, sortMode } = store.getState();
+      const updatedProjects = [...projects];
+      store.setState({ projects: updatedProjects });
+      handleSearchInput(searchQuery, sortMode);
+
+      showToast(newPinned ? "Project pinned to top" : "Project unpinned");
+    } catch (err: any) {
+      showToast(err.message || "Failed to update pinned status");
+    }
+  };
+
+  const openFolder = async (proj?: Project): Promise<void> => {
+    const target = proj || store.getState().selectedProject;
+    if (!target) return;
+
+    try {
+      await window.app.projects.openFolder(target.path);
+      showToast("Opened folder in Explorer");
+    } catch (err: any) {
+      showToast(err.message || "Failed to open folder");
+    }
+  };
+
+  const copyPath = async (proj?: Project): Promise<void> => {
+    const target = proj || store.getState().selectedProject;
+    if (!target) return;
+
+    try {
+      await window.app.projects.copyPath(target.path);
+      showToast("Path copied to clipboard");
+    } catch (err: any) {
+      showToast(err.message || "Failed to copy path");
+    }
+  };
+
+  const filterByTag = (tag: string): void => {
+    searchInput.value = `#${tag}`;
+    btnClearSearch.classList.remove("hidden");
+    handleSearchInput(searchInput.value);
+    searchInput.focus();
+  };
+
+  setupProjectList(projectsList, emptyState, openProject, togglePin, filterByTag);
   setupProjectDetails({
     descView,
     descEditWrap,
@@ -92,8 +144,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     btnSaveDesc,
     btnCancelDesc,
     descSavedBadge,
+    tagsList: document.getElementById("project-tags-list") as HTMLElement,
+    inputNewTag: document.getElementById("input-new-tag") as HTMLInputElement,
+    tagSavedBadge: document.getElementById("tag-save-indicator") as HTMLElement,
+    btnTogglePin: document.getElementById("btn-toggle-pin") as HTMLButtonElement,
+    pinIcon: document.getElementById("pin-icon") as HTMLElement,
+    pinLabel: document.getElementById("pin-label") as HTMLElement,
+    btnOpenFolder: document.getElementById("btn-sidebar-open-folder") as HTMLButtonElement,
+    btnCopyPath: document.getElementById("btn-sidebar-copy-path") as HTMLButtonElement,
     noteTextarea,
-    noteSavedBadge
+    noteSavedBadge,
+    onTogglePin: () => togglePin(),
+    onOpenFolder: () => openFolder(),
+    onCopyPath: () => copyPath(),
+    onTagClick: (tag) => filterByTag(tag)
   });
   setupMarkdownDropzones(globalDropzone, modalDropzone, showToast);
   setupNewProjectModal(
@@ -110,6 +174,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     modal: modalSettings,
     projectsRootInput: settingsProjectsRoot,
     hotkeyInput: settingsHotkey,
+    openFolderShortcutInput: document.getElementById("settings-open-folder-shortcut") as HTMLInputElement,
+    copyPathShortcutInput: document.getElementById("settings-copy-path-shortcut") as HTMLInputElement,
     chatgptModeSelect: settingsChatgptMode,
     customPromptTextarea: settingsCustomPrompt,
     resetPromptBtn: btnResetPrompt,
@@ -153,6 +219,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       openSelected: () => {
         const { selectedProject } = store.getState();
         if (selectedProject) openProject(selectedProject);
+      },
+      openFolder: () => {
+        openFolder();
+      },
+      copyPath: () => {
+        copyPath();
       },
       openNewProject: () => {
         store.setState({ activeModal: "new_project" });

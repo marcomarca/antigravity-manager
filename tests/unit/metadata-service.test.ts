@@ -79,4 +79,47 @@ describe("MetadataService", () => {
     expect(service.getDescription(projectPath)).toBeUndefined();
     expect(service.get(projectPath)).toEqual({});
   });
+
+  it("persists and toggles pinned state per canonical path", async () => {
+    const service = new MetadataService(tempDir);
+    await service.init();
+
+    const projectPath = "C:\\Projects\\Core API";
+    expect(service.getPinned(projectPath)).toBe(false);
+
+    await service.setPinned(projectPath, true);
+    expect(service.getPinned(projectPath)).toBe(true);
+    expect(service.getPinned("c:/projects/core api")).toBe(true);
+
+    // Persistence across reload
+    const reloaded = new MetadataService(tempDir);
+    await reloaded.init();
+    expect(reloaded.getPinned(projectPath)).toBe(true);
+
+    // Unpin
+    await reloaded.setPinned(projectPath, false);
+    expect(reloaded.getPinned(projectPath)).toBe(false);
+    expect(reloaded.get(projectPath)).toEqual({});
+  });
+
+  it("persists, sanitizes, and removes project tags", async () => {
+    const service = new MetadataService(tempDir);
+    await service.init();
+
+    const projectPath = "C:\\Projects\\Core API";
+    await service.setTags(projectPath, ["#Backend", "  Node ", "API", "#backend"]);
+
+    // Sanitized: lowercased, leading # removed, trimmed, deduplicated
+    expect(service.getTags(projectPath)).toEqual(["backend", "node", "api"]);
+
+    // Persistence across reload
+    const reloaded = new MetadataService(tempDir);
+    await reloaded.init();
+    expect(reloaded.getTags(projectPath)).toEqual(["backend", "node", "api"]);
+
+    // Clear tags
+    await reloaded.setTags(projectPath, []);
+    expect(reloaded.getTags(projectPath)).toEqual([]);
+    expect(reloaded.get(projectPath)).toEqual({});
+  });
 });

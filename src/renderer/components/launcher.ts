@@ -5,7 +5,9 @@ import type { Project } from "../../domain/types";
 export function setupProjectList(
   container: HTMLElement,
   emptyState: HTMLElement,
-  onOpenProject: (proj: Project) => void
+  onOpenProject: (proj: Project) => void,
+  onTogglePin?: (proj: Project) => void,
+  onTagClick?: (tag: string) => void
 ): void {
   let prevProjects: Project[] = [];
   let prevSelectedIndex = -1;
@@ -43,6 +45,12 @@ export function setupProjectList(
           },
           () => {
             onOpenProject(proj);
+          },
+          () => {
+            onTogglePin?.(proj);
+          },
+          (tag) => {
+            onTagClick?.(tag);
           }
         );
         container.appendChild(rowEl);

@@ -5,6 +5,13 @@ export function normalizeQuery(query: string): string {
 }
 
 export function sortProjectsByMode(a: Project, b: Project, mode: SortMode): number {
+  // Pinned projects always precede unpinned projects
+  const aPinned = !!a.pinned;
+  const bPinned = !!b.pinned;
+  if (aPinned !== bPinned) {
+    return aPinned ? -1 : 1;
+  }
+
   switch (mode) {
     case "recent": {
       // 1. Antigravity recents by recentIndex ascending (0 is most recent)
@@ -77,39 +84,60 @@ export function rankProject(project: Project, query: string): number {
   const path = project.path.toLowerCase();
   const description = (project.description || "").toLowerCase();
   const note = (project.note || "").toLowerCase();
+  const tags = (project.tags || []).map((t) => t.toLowerCase());
+  const pinBonus = project.pinned ? 50 : 0;
+
+  // Tag filter if query starts with '#'
+  if (q.startsWith("#")) {
+    const rawTag = q.slice(1).trim();
+    if (!rawTag) return -1;
+    for (const tag of tags) {
+      if (tag === rawTag) return 1000 + pinBonus;
+      if (tag.startsWith(rawTag)) return 850 + pinBonus;
+      if (tag.includes(rawTag)) return 700 + pinBonus;
+    }
+    return -1;
+  }
 
   // Tier 1: Exact name
   if (name === q) {
-    return 1000;
+    return 1000 + pinBonus;
   }
 
   // Tier 2: Name starts with query
   if (name.startsWith(q)) {
-    return 800 - (name.length - q.length); // closer length ranks higher
+    return 800 - (name.length - q.length) + pinBonus;
+  }
+
+  // Tier 2.5: Tag match
+  for (const tag of tags) {
+    if (tag === q) return 750 + pinBonus;
+    if (tag.startsWith(q)) return 650 + pinBonus;
+    if (tag.includes(q)) return 550 + pinBonus;
   }
 
   // Tier 3: Name includes query word boundary or substring
   const nameIdx = name.indexOf(q);
   if (nameIdx >= 0) {
-    return 600 - nameIdx;
+    return 600 - nameIdx + pinBonus;
   }
 
   // Tier 4: Description includes query
   const descIdx = description.indexOf(q);
   if (descIdx >= 0) {
-    return 500 - Math.min(descIdx, 100);
+    return 500 - Math.min(descIdx, 100) + pinBonus;
   }
 
   // Tier 5: Note includes query
   const noteIdx = note.indexOf(q);
   if (noteIdx >= 0) {
-    return 400 - Math.min(noteIdx, 100);
+    return 400 - Math.min(noteIdx, 100) + pinBonus;
   }
 
   // Tier 6: Path includes query
   const pathIdx = path.indexOf(q);
   if (pathIdx >= 0) {
-    return 200 - Math.min(pathIdx, 100);
+    return 200 - Math.min(pathIdx, 100) + pinBonus;
   }
 
   // No match

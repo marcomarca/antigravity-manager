@@ -9,7 +9,11 @@ const api: IAppApi = {
     create: (name: string): Promise<Project> => ipcRenderer.invoke("projects:create", name),
     importMarkdown: (req: ImportMarkdownRequest): Promise<Project> => ipcRenderer.invoke("projects:importMarkdown", req),
     setNote: (path: string, note: string): Promise<void> => ipcRenderer.invoke("projects:setNote", path, note),
-    setDescription: (path: string, description: string): Promise<void> => ipcRenderer.invoke("projects:setDescription", path, description)
+    setDescription: (path: string, description: string): Promise<void> => ipcRenderer.invoke("projects:setDescription", path, description),
+    setPinned: (path: string, pinned: boolean): Promise<void> => ipcRenderer.invoke("projects:setPinned", path, pinned),
+    setTags: (path: string, tags: string[]): Promise<void> => ipcRenderer.invoke("projects:setTags", path, tags),
+    openFolder: (path: string): Promise<void> => ipcRenderer.invoke("projects:openFolder", path),
+    copyPath: (path: string): Promise<void> => ipcRenderer.invoke("projects:copyPath", path)
   },
   planning: {
     start: (): Promise<{ pasted: boolean; promptCopied: boolean }> => ipcRenderer.invoke("planning:start"),

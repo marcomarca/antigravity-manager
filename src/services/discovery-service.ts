@@ -38,6 +38,7 @@ export class DiscoveryService {
         }
 
         const key = canonicalPathKey(rec.path);
+        const meta = this.metadataService.get(rec.path);
         map.set(key, {
           name: rec.name,
           path: normalizePath(rec.path),
@@ -48,8 +49,10 @@ export class DiscoveryService {
             projectsRoot: false
           },
           recentIndex: rec.recentIndex,
-          note: this.metadataService.getNote(rec.path),
-          description: this.metadataService.getDescription(rec.path),
+          note: meta.note,
+          description: meta.description,
+          pinned: meta.pinned,
+          tags: meta.tags,
           createdAt,
           modifiedAt
         });
@@ -70,10 +73,13 @@ export class DiscoveryService {
           if (!existing.createdAt && rootProj.createdAt) existing.createdAt = rootProj.createdAt;
           if (!existing.modifiedAt && rootProj.modifiedAt) existing.modifiedAt = rootProj.modifiedAt;
         } else {
+          const meta = this.metadataService.get(rootProj.path);
           map.set(key, {
             ...rootProj,
-            note: this.metadataService.getNote(rootProj.path),
-            description: this.metadataService.getDescription(rootProj.path)
+            note: meta.note,
+            description: meta.description,
+            pinned: meta.pinned,
+            tags: meta.tags
           });
         }
       }

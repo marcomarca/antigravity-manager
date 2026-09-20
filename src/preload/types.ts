@@ -8,6 +8,10 @@ export interface IAppApi {
     importMarkdown: (req: ImportMarkdownRequest) => Promise<Project>;
     setNote: (path: string, note: string) => Promise<void>;
     setDescription: (path: string, description: string) => Promise<void>;
+    setPinned: (path: string, pinned: boolean) => Promise<void>;
+    setTags: (path: string, tags: string[]) => Promise<void>;
+    openFolder: (path: string) => Promise<void>;
+    copyPath: (path: string) => Promise<void>;
   };
   planning: {
     start: () => Promise<{ pasted: boolean; promptCopied: boolean }>;

@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { ipcMain, shell, clipboard } from "electron";
 import type { ImportMarkdownRequest } from "../../domain/types";
 import type { DiscoveryService } from "../../services/discovery-service";
 import type { ProjectService } from "../../services/project-service";
@@ -61,6 +61,46 @@ export function registerProjectsIpc(
       await metadataService.setDescription(path, description);
     } catch (err) {
       logger.error(`IPC Error in projects:setDescription for "${path}"`, err);
+      throw AppError.from(err).toPayload();
+    }
+  });
+
+  ipcMain.handle("projects:setPinned", async (_event, path: string, pinned: boolean) => {
+    try {
+      await metadataService.setPinned(path, pinned);
+    } catch (err) {
+      logger.error(`IPC Error in projects:setPinned for "${path}"`, err);
+      throw AppError.from(err).toPayload();
+    }
+  });
+
+  ipcMain.handle("projects:setTags", async (_event, path: string, tags: string[]) => {
+    try {
+      await metadataService.setTags(path, tags);
+    } catch (err) {
+      logger.error(`IPC Error in projects:setTags for "${path}"`, err);
+      throw AppError.from(err).toPayload();
+    }
+  });
+
+  ipcMain.handle("projects:openFolder", async (_event, projectPath: string) => {
+    try {
+      if (projectPath.endsWith(".md") || projectPath.endsWith(".code-workspace")) {
+        shell.showItemInFolder(projectPath);
+      } else {
+        await shell.openPath(projectPath);
+      }
+    } catch (err) {
+      logger.error(`IPC Error in projects:openFolder for "${projectPath}"`, err);
+      throw AppError.from(err).toPayload();
+    }
+  });
+
+  ipcMain.handle("projects:copyPath", async (_event, projectPath: string) => {
+    try {
+      clipboard.writeText(projectPath);
+    } catch (err) {
+      logger.error(`IPC Error in projects:copyPath for "${projectPath}"`, err);
       throw AppError.from(err).toPayload();
     }
   });

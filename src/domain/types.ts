@@ -24,11 +24,15 @@ export interface Project {
   note?: string;
   createdAt?: number;
   modifiedAt?: number;
+  pinned?: boolean;
+  tags?: string[];
 }
 
 export interface ProjectMetadata {
   description?: string;
   note?: string;
+  pinned?: boolean;
+  tags?: string[];
 }
 
 export interface StateData {
@@ -47,6 +51,8 @@ export interface Config {
   chatgptMode: ChatGPTMode;
   customPlanningPrompt?: string;
   defaultSortMode?: SortMode;
+  openFolderShortcut?: string;
+  copyPathShortcut?: string;
 }
 
 export type AppErrorCode =

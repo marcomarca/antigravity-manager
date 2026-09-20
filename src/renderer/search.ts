@@ -7,10 +7,32 @@ export interface KeyNavigationActions {
   openNewProject: () => void;
   openSettings: () => void;
   closeOrHide: () => void;
+  openFolder?: () => void;
+  copyPath?: () => void;
   focusDescription?: () => void;
   focusNote?: () => void;
   focusSearch?: () => void;
   clearSearch?: () => void;
+}
+
+export function matchesShortcut(e: KeyboardEvent, shortcutStr?: string): boolean {
+  if (!shortcutStr) return false;
+  const parts = shortcutStr.split("+").map((p) => p.trim().toLowerCase());
+  const requiresCtrl = parts.includes("ctrl");
+  const requiresShift = parts.includes("shift");
+  const requiresAlt = parts.includes("alt");
+  const baseKey = parts.find((p) => p !== "ctrl" && p !== "shift" && p !== "alt");
+
+  const hasCtrl = Boolean(e.ctrlKey || e.metaKey);
+  const hasShift = Boolean(e.shiftKey);
+  const hasAlt = Boolean(e.altKey);
+
+  if (requiresCtrl !== hasCtrl) return false;
+  if (requiresShift !== hasShift) return false;
+  if (requiresAlt !== hasAlt) return false;
+
+  if (!baseKey) return false;
+  return e.key.toLowerCase() === baseKey;
 }
 
 export function handleSearchInput(query: string, sortModeOverride?: SortMode): void {
@@ -72,6 +94,25 @@ export function handleKeyNavigation(
   if ((e.ctrlKey || e.metaKey) && (e.key === "e" || e.key === "E")) {
     e.preventDefault();
     actions.focusNote?.();
+    return;
+  }
+
+  // Custom Quick Actions
+  const openFolderShortcut = state.config?.openFolderShortcut || "Ctrl+Shift+S";
+  if (matchesShortcut(e, openFolderShortcut)) {
+    e.preventDefault();
+    if (state.selectedProject) {
+      actions.openFolder?.();
+    }
+    return;
+  }
+
+  const copyPathShortcut = state.config?.copyPathShortcut || "Ctrl+Shift+C";
+  if (matchesShortcut(e, copyPathShortcut)) {
+    e.preventDefault();
+    if (state.selectedProject) {
+      actions.copyPath?.();
+    }
     return;
   }
 
