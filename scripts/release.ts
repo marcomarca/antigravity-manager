@@ -52,10 +52,8 @@ async function main(): Promise<void> {
   // 4. Verify release files
   const releaseDir = path.join(rootDir, "release");
   const latestYml = path.join(releaseDir, "latest.yml");
-  const setupExe = path.join(releaseDir, `Antigravity Project Launcher Setup ${version}.exe`);
-  const setupHyphenExe = path.join(releaseDir, `Antigravity-Project-Launcher-Setup-${version}.exe`);
-  const blockmap = path.join(releaseDir, `Antigravity Project Launcher Setup ${version}.exe.blockmap`);
-  const blockmapHyphen = path.join(releaseDir, `Antigravity-Project-Launcher-Setup-${version}.exe.blockmap`);
+  const setupExe = path.join(releaseDir, `Antigravity-Project-Launcher-Setup-${version}.exe`);
+  const blockmap = path.join(releaseDir, `Antigravity-Project-Launcher-Setup-${version}.exe.blockmap`);
   const portableExe = path.join(releaseDir, `Antigravity Project Launcher ${version} Portable.exe`);
 
   if (!fs.existsSync(latestYml)) {
@@ -67,16 +65,6 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  // Ensure hyphenated copies exist to guarantee compatibility with URL references in latest.yml
-  if (!fs.existsSync(setupHyphenExe)) {
-    console.log(`📋 Mirroring setup installer as hyphenated URL asset: ${path.basename(setupHyphenExe)}`);
-    fs.copyFileSync(setupExe, setupHyphenExe);
-  }
-  if (fs.existsSync(blockmap) && !fs.existsSync(blockmapHyphen)) {
-    console.log(`📋 Mirroring blockmap as hyphenated URL asset: ${path.basename(blockmapHyphen)}`);
-    fs.copyFileSync(blockmap, blockmapHyphen);
-  }
-
   // 5. Publish to GitHub Releases
   console.log(`\n☁️ Publishing assets to GitHub release ${tag}...`);
 
@@ -85,12 +73,10 @@ async function main(): Promise<void> {
 
   const assetsToUpload: string[] = [
     latestYml,
-    setupExe,
-    setupHyphenExe
+    setupExe
   ];
 
   if (fs.existsSync(blockmap)) assetsToUpload.push(blockmap);
-  if (fs.existsSync(blockmapHyphen)) assetsToUpload.push(blockmapHyphen);
   if (fs.existsSync(portableExe)) assetsToUpload.push(portableExe);
 
   if (!releaseExists) {
