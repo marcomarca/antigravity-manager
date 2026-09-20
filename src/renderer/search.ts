@@ -12,6 +12,7 @@ export interface KeyNavigationActions {
   togglePin?: () => void;
   openContextMenu?: () => void;
   focusDescription?: () => void;
+  focusTags?: () => void;
   focusNote?: () => void;
   focusSearch?: () => void;
   clearSearch?: () => void;
@@ -205,7 +206,9 @@ export function handleKeyNavigation(
       if (activeId === "project-note-input") {
         e.preventDefault();
         if (e.shiftKey) {
-          if (actions.focusDescription) {
+          if (actions.focusTags) {
+            actions.focusTags();
+          } else if (actions.focusDescription) {
             actions.focusDescription();
           } else {
             actions.focusSearch?.();
@@ -221,7 +224,11 @@ export function handleKeyNavigation(
         if (e.shiftKey) {
           actions.focusSearch?.();
         } else {
-          actions.focusNote?.();
+          if (actions.focusTags) {
+            actions.focusTags();
+          } else {
+            actions.focusNote?.();
+          }
         }
         return;
       }
@@ -240,7 +247,11 @@ export function handleKeyNavigation(
       if (e.shiftKey) {
         actions.focusSearch?.();
       } else {
-        actions.focusNote?.();
+        if (actions.focusTags) {
+          actions.focusTags();
+        } else {
+          actions.focusNote?.();
+        }
       }
       return;
     }
@@ -249,6 +260,35 @@ export function handleKeyNavigation(
       actions.focusSearch?.();
       return;
     }
+  }
+
+  // Context: Tag Input active
+  const isTagInput =
+    activeEl?.id === "input-new-tag" || targetEl?.id === "input-new-tag";
+  if (isTagInput) {
+    if (e.key === "Enter") {
+      // Handled in note-editor to create tag. Do not launch project.
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      actions.focusSearch?.();
+      return;
+    }
+    if (e.key === "Tab") {
+      e.preventDefault();
+      if (e.shiftKey) {
+        if (actions.focusDescription) {
+          actions.focusDescription();
+        } else {
+          actions.focusSearch?.();
+        }
+      } else {
+        actions.focusNote?.();
+      }
+      return;
+    }
+    return;
   }
 
   // Context: Search & List Navigation
@@ -273,7 +313,12 @@ export function handleKeyNavigation(
   }
 
   if (e.key === "Enter") {
-    if (activeEl?.tagName === "BUTTON" || targetEl?.tagName === "BUTTON") {
+    if (
+      activeEl?.tagName === "BUTTON" ||
+      targetEl?.tagName === "BUTTON" ||
+      activeEl?.id === "input-new-tag" ||
+      targetEl?.id === "input-new-tag"
+    ) {
       return;
     }
     e.preventDefault();

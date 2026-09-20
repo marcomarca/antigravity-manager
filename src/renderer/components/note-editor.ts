@@ -254,6 +254,7 @@ export function setupProjectDetails(elements: ProjectDetailsElements): void {
     inputNewTag.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
+        e.stopPropagation();
         addTag(inputNewTag.value);
       }
     });

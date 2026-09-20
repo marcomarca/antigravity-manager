@@ -452,6 +452,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           noteTextarea.setSelectionRange(noteTextarea.value.length, noteTextarea.value.length);
         }
       },
+      focusTags: () => {
+        const inputNewTag = document.getElementById("input-new-tag") as HTMLInputElement | null;
+        if (inputNewTag && !inputNewTag.disabled) {
+          inputNewTag.focus();
+          inputNewTag.select();
+        } else if (!noteTextarea.disabled) {
+          noteTextarea.focus();
+        }
+      },
       focusNote: () => {
         if (!noteTextarea.disabled) {
           noteTextarea.focus();

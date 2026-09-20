@@ -276,6 +276,81 @@ describe("Key Navigation Architecture", () => {
     expect(event.defaultPrevented).toBe(false);
   });
 
+  it("allows Enter inside #input-new-tag without launching project", () => {
+    const mockTagInput = { tagName: "INPUT", id: "input-new-tag" };
+    (globalThis as any).document = {
+      activeElement: mockTagInput
+    };
+
+    const event = createMockEvent("Enter", { target: mockTagInput });
+    handleKeyNavigation(event, actions);
+
+    expect(opened).toBe(false);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("returns focus to search on Escape inside #input-new-tag", () => {
+    const mockTagInput = { tagName: "INPUT", id: "input-new-tag" };
+    (globalThis as any).document = {
+      activeElement: mockTagInput
+    };
+
+    const event = createMockEvent("Escape", { target: mockTagInput });
+    handleKeyNavigation(event, actions);
+
+    expect(searchFocused).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("navigates to note on Tab from #input-new-tag", () => {
+    const mockTagInput = { tagName: "INPUT", id: "input-new-tag" };
+    (globalThis as any).document = {
+      activeElement: mockTagInput
+    };
+
+    const event = createMockEvent("Tab", { target: mockTagInput });
+    handleKeyNavigation(event, actions);
+
+    expect(noteFocused).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("navigates to description on Shift+Tab from #input-new-tag", () => {
+    let descFocused = false;
+    actions.focusDescription = () => {
+      descFocused = true;
+    };
+
+    const mockTagInput = { tagName: "INPUT", id: "input-new-tag" };
+    (globalThis as any).document = {
+      activeElement: mockTagInput
+    };
+
+    const event = createMockEvent("Tab", { shiftKey: true, target: mockTagInput });
+    handleKeyNavigation(event, actions);
+
+    expect(descFocused).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("navigates to tags on Tab from btn-edit-desc when focusTags is provided", () => {
+    let tagsFocused = false;
+    actions.focusTags = () => {
+      tagsFocused = true;
+    };
+
+    const mockButton = { tagName: "BUTTON", id: "btn-edit-desc" };
+    (globalThis as any).document = {
+      activeElement: mockButton
+    };
+
+    const event = createMockEvent("Tab", { target: mockButton });
+    handleKeyNavigation(event, actions);
+
+    expect(tagsFocused).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
   it("triggers openFolder on Ctrl+Shift+S shortcut", () => {
     let folderOpened = false;
     actions.openFolder = () => {
