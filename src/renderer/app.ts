@@ -309,13 +309,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     handleClearTags();
   });
 
-  // Subscribe to tag updates
+  // Subscribe to tag updates and modal state
   let prevTags: string[] = [];
+  let prevActiveModal: string = store.getState().activeModal;
   store.subscribe(() => {
-    const { selectedTags } = store.getState();
+    const { selectedTags, activeModal } = store.getState();
     if (selectedTags !== prevTags) {
       prevTags = selectedTags;
       renderActiveTagsBar();
+    }
+    if (activeModal !== prevActiveModal) {
+      prevActiveModal = activeModal;
+      if (window.app.window?.setModalOpen) {
+        window.app.window.setModalOpen(activeModal !== "none");
+      }
     }
   });
 
@@ -347,7 +354,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     noteSavedBadge,
     onTagClick: (tag) => handleTagToggle(tag)
   });
-  setupMarkdownDropzones(globalDropzone, modalDropzone, showToast);
+  const dropzonesController = setupMarkdownDropzones(globalDropzone, modalDropzone, showToast);
   setupNewProjectModal(
     modalNewProject,
     newProjectNameInput,
@@ -481,6 +488,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       },
       clearSearch: () => {
         clearSearch();
+      },
+      dismissDropzone: () => {
+        if (dropzonesController.isVisible()) {
+          dropzonesController.hide();
+          return true;
+        }
+        return false;
       }
     });
   });
@@ -530,6 +544,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Listen for window shown events to refresh recent projects and refocus search
   if (window.app.window.onShown) {
     window.app.window.onShown(async () => {
+      dropzonesController.reset();
       await refreshData();
       searchInput.focus();
       searchInput.select();

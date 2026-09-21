@@ -26,6 +26,9 @@ const api: IAppApi = {
   window: {
     hide: (): Promise<void> => ipcRenderer.invoke("window:hide"),
     close: (): Promise<void> => ipcRenderer.invoke("window:close"),
+    setModalOpen: (isOpen: boolean): void => {
+      ipcRenderer.send("window:setModalOpen", isOpen);
+    },
     onShown: (callback: () => void): (() => void) => {
       const handler = () => callback();
       ipcRenderer.on("window:shown", handler);

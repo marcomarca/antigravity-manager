@@ -1,6 +1,6 @@
 {
   "name": "antigravity-project-launcher",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Fast Windows launcher for Antigravity IDE projects with Markdown import and notes",
   "main": "dist/main/main.js",
   "scripts": {

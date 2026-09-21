@@ -24,6 +24,7 @@ export interface IAppApi {
   window: {
     hide: () => Promise<void>;
     close: () => Promise<void>;
+    setModalOpen?: (isOpen: boolean) => void;
     onShown: (callback: () => void) => () => void;
   };
   tray: {

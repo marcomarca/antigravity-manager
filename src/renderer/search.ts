@@ -16,6 +16,7 @@ export interface KeyNavigationActions {
   focusNote?: () => void;
   focusSearch?: () => void;
   clearSearch?: () => void;
+  dismissDropzone?: () => boolean;
 }
 
 export function matchesShortcut(e: KeyboardEvent, shortcutStr?: string): boolean {
@@ -111,6 +112,12 @@ export function handleKeyNavigation(
       e.preventDefault();
       store.setState({ activeModal: "none", collisionContext: null });
     }
+    return;
+  }
+
+  // If global dropzone is visible, let Escape dismiss it
+  if (e.key === "Escape" && actions.dismissDropzone && actions.dismissDropzone()) {
+    e.preventDefault();
     return;
   }
 
